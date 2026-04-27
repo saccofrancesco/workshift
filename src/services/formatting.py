@@ -20,3 +20,10 @@ def format_time_label(value: time) -> str:
 
 def format_time_range(start: time, end: time) -> str:
     return f"{format_time_label(start)} - {format_time_label(end)}"
+
+
+def format_hours(value: float, decimals: int = 2) -> str:
+    text: str = f"{value:.{decimals}f}".rstrip("0").rstrip(".")
+    if text == "-0":
+        text = "0"
+    return f"{text} h"
