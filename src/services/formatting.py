@@ -43,3 +43,16 @@ def contrast_text_color(color_hex: str) -> str:
 def weekday_abbrev(index: int) -> str:
     labels: tuple[str] = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
     return labels[index]
+
+
+def weekday_name(index: int) -> str:
+    labels: tuple[str] = (
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    )
+    return labels[index]
