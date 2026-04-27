@@ -29,3 +29,9 @@ class Shift:
     start_time: time
     end_time: time
     id: str = field(default_factory=_new_id)
+
+
+@dataclass(slots=True)
+class Schedule:
+    employees: list[Employee] = field(default_factory=list)
+    shifts: list[Shift] = field(default_factory=list)
