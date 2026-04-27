@@ -16,3 +16,7 @@ def format_full_date_label(value: date) -> str:
 
 def format_time_label(value: time) -> str:
     return value.strftime("%H:%M")
+
+
+def format_time_range(start: time, end: time) -> str:
+    return f"{format_time_label(start)} - {format_time_label(end)}"
