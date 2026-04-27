@@ -10,3 +10,14 @@ class EmployeeListItemVM:
     color_hex: str
     weekly_target_hours: float
     workdays: tuple[int, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class ShiftRowVM:
+    id: str
+    employee_id: str
+    employee_name: str
+    color_hex: str
+    start_time: time
+    end_time: time
+    duration_hours: float
