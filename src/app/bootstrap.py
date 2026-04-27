@@ -1,6 +1,7 @@
 from __future__ import annotations
 import sys
 from PyQt6.QtWidgets import QApplication
+from ..ui.theme import apply_theme
 from ..ui.main_window import MainWindow
 
 
@@ -12,6 +13,7 @@ def create_application(
     app.setOrganizationName("Workshift")
     app.setOrganizationDomain("local")
     app.setStyle("Fusion")
+    apply_theme(app)
     window: MainWindow = MainWindow()
     return app, window
 
