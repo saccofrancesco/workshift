@@ -46,3 +46,12 @@ class CardFrame(QFrame):
     ) -> None:
         super().__init__(parent)
         self.setObjectName(object_name)
+
+
+class ColorSwatch(QFrame):
+    def __init__(self, size: int = 12, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._size = size
+        self.setFixedSize(size, size)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
+        self.setColor("#2563eb")
