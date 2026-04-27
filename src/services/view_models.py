@@ -33,3 +33,14 @@ class CalendarDayVM:
     employee_colors: tuple[str, ...]
     overflow_count: int
     tooltip: str
+
+
+@dataclass(frozen=True, slots=True)
+class EmployeeWorkloadVM:
+    id: str
+    full_name: str
+    color_hex: str
+    assigned_hours: float
+    target_hours: float
+    remaining_hours: float
+    progress_ratio: float
