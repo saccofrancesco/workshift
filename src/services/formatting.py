@@ -8,3 +8,7 @@ def format_month_label(value: date) -> str:
 
 def format_date_label(value: date) -> str:
     return f"{value.day} {value:%b %Y}"
+
+
+def format_full_date_label(value: date) -> str:
+    return f"{value:%A}, {value.day} {value:%b %Y}"
