@@ -16,3 +16,7 @@ class Employee:
     workdays: tuple[int, ...]
     color_hex: str
     id: str = field(default_factory=_new_id)
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.first_name} {self.last_name}".strip()
