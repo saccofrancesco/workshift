@@ -75,5 +75,11 @@ class WeekdaySelector(QWidget):
             button.setObjectName("workdayButton")
             button.setText(weekday_abbrev(index))
             button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.toggled.connect(self._emit_change)
             layout.addWidget(button)
             self._buttons.append(button)
+
+    def _emit_change(self) -> None:
+        self.selection_changed.emit()
+
+    selection_changed: pyqtSignal = pyqtSignal()
