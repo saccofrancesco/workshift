@@ -1,6 +1,5 @@
-# Importing app into the main entry point
-from src.app import run
+from __future__ import annotations
+from src.app.bootstrap import main
 
-# Main running guard
 if __name__ == "__main__":
-    run()
+    raise SystemExit(main())
