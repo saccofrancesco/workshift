@@ -48,3 +48,30 @@ def require_shift(schedule: Schedule, shift_id: str) -> Shift:
         if shift.id == shift_id:
             return shift
     raise WorkshiftError("Selected shift no longer exists.")
+
+
+def validate_shift_fields(
+    schedule: Schedule,
+    employee_id: str,
+    shift_date: date,
+    start_time: time,
+    end_time: time,
+    *,
+    shift_id: str | None = None,
+) -> None:
+    require_employee(schedule, employee_id)
+    if end_time <= start_time:
+        raise WorkshiftError("Shift end time must be after start time.")
+
+    for shift in schedule.shifts:
+        if shift.id == shift_id:
+            continue
+        if shift.employee_id != employee_id:
+            continue
+        if shift.shift_date != shift_date:
+            continue
+        overlaps = start_time < shift.end_time and shift.start_time < end_time
+        if overlaps:
+            raise WorkshiftError(
+                "This shift overlaps another shift for the same employee."
+            )
