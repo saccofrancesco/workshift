@@ -1,6 +1,7 @@
 from __future__ import annotations
 from PyQt6.QtWidgets import QMainWindow
 from ..app.controller import WorkshiftController
+from ..services.view_models import EmployeeListItemVM
 from ..services.formatting import format_full_date_label, format_time_range
 from ..services.validation import WorkshiftError
 from .dialogs import DeleteConfirmDialog, EmployeeDialog, ShiftDialog
@@ -59,3 +60,15 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(self.main_splitter, 1)
         self.setCentralWidget(central)
+
+    def refresh(self) -> None:
+        employees: list[EmployeeListItemVM] = self.controller.employee_rows()
+        self.employee_panel.set_employees(employees)
+        self.calendar_panel.set_month(
+            self.controller.selected_month, self.controller.calendar_grid()
+        )
+        self.shift_panel.set_selected_day(self.controller.selected_day)
+        self.shift_panel.set_add_enabled(bool(employees))
+        self.shift_panel.set_shifts(self.controller.daily_shift_rows())
+        self.workload_panel.set_workloads(self.controller.workload_rows())
+        self.setWindowTitle(f"Workshift - {self.controller.month_label()}")
