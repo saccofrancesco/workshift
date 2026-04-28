@@ -183,10 +183,7 @@ class ShiftPanel(CardFrame):
         title_box.setSpacing(1)
         title: QLabel = QLabel("Daily shifts", self)
         title.setObjectName("panelTitle")
-        subtitle: QLabel = QLabel("Sorted by start time", self)
-        subtitle.setObjectName("panelSubtitle")
         title_box.addWidget(title)
-        title_box.addWidget(subtitle)
         header.addLayout(title_box, 1)
 
         self._add_button: QPushButton = QPushButton("Add shift", self)
