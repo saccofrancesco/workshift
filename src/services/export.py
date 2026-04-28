@@ -4,7 +4,7 @@ from pathlib import Path
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
-from ..domain.models import Schedule
+from ..domain.models import Employee, Schedule, Shift
 from .calculations import build_employee_workloads
 from .formatting import contrast_text_color, format_month_label
 
@@ -64,3 +64,104 @@ def _set_page_setup(sheet) -> None:
 def _set_widths(sheet, widths: dict[str, float]) -> None:
     for column, width in widths.items():
         sheet.column_dimensions[column].width = width
+
+
+def _write_schedule_sheet(sheet, schedule: Schedule, month_date: date) -> None:
+    _format_sheet_title(
+        sheet,
+        f"Workshift Schedule - {format_month_label(month_date)}",
+        "Print-friendly planning export",
+        6,
+    )
+    headers_row: int = 4
+    headers: list[str] = ["Date", "Weekday", "Employee", "Start", "End", "Hours"]
+    for index, header in enumerate(headers, start=1):
+        cell = sheet.cell(row=headers_row, column=index, value=header)
+        cell.font = Font(bold=True, color="0F172A")
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+    _style_header_row(sheet, headers_row, len(headers))
+
+    start_row: int = headers_row + 1
+    month_key: tuple[int, int] = (month_date.year, month_date.month)
+    rows: list[Shift] = sorted(
+        [
+            shift
+            for shift in schedule.shifts
+            if (shift.shift_date.year, shift.shift_date.month) == month_key
+        ],
+        key=lambda shift: (
+            shift.shift_date,
+            shift.start_time,
+            next(
+                (
+                    employee.full_name.casefold()
+                    for employee in schedule.employees
+                    if employee.id == shift.employee_id
+                ),
+                "unknown",
+            ),
+        ),
+    )
+    if not rows:
+        sheet.cell(row=start_row, column=1, value="No shifts planned for this month.")
+        sheet.merge_cells(
+            start_row=start_row, start_column=1, end_row=start_row, end_column=6
+        )
+        sheet.cell(row=start_row, column=1).alignment = Alignment(horizontal="center")
+        _set_page_setup(sheet)
+        _set_widths(sheet, {"A": 16, "B": 14, "C": 24, "D": 12, "E": 12, "F": 12})
+        return
+
+    for index, row in enumerate(rows, start=start_row):
+        employee: Employee = next(
+            (
+                employee
+                for employee in schedule.employees
+                if employee.id == row.employee_id
+            ),
+            None,
+        )
+        date_cell = sheet.cell(row=index, column=1, value=row.shift_date)
+        weekday_cell = sheet.cell(
+            row=index, column=2, value=row.shift_date.strftime("%A")
+        )
+        employee_cell = sheet.cell(
+            row=index,
+            column=3,
+            value=employee.full_name if employee else row.employee_name,
+        )
+        start_cell = sheet.cell(row=index, column=4, value=row.start_time)
+        end_cell = sheet.cell(row=index, column=5, value=row.end_time)
+        hours_cell = sheet.cell(
+            row=index,
+            column=6,
+            value=(row.end_time.hour + row.end_time.minute / 60)
+            - (row.start_time.hour + row.start_time.minute / 60),
+        )
+
+        date_cell.number_format = "yyyy-mm-dd"
+        start_cell.number_format = "hh:mm"
+        end_cell.number_format = "hh:mm"
+        hours_cell.number_format = "0.00"
+
+        fill_color: str = employee.color_hex if employee else "#94a3b8"
+        employee_cell.fill = _solid_fill(fill_color)
+        employee_cell.font = Font(
+            color=_font_color(contrast_text_color(fill_color)), bold=True
+        )
+
+        for cell in (
+            date_cell,
+            weekday_cell,
+            employee_cell,
+            start_cell,
+            end_cell,
+            hours_cell,
+        ):
+            cell.alignment = Alignment(vertical="center")
+            _apply_border(cell)
+
+    _apply_auto_filter(sheet, headers_row, start_row + len(rows) - 1, len(headers))
+    sheet.freeze_panes = "A5"
+    _set_page_setup(sheet)
+    _set_widths(sheet, {"A": 14, "B": 14, "C": 26, "D": 12, "E": 12, "F": 12})
