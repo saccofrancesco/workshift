@@ -125,3 +125,11 @@ class EmployeeDialog(QDialog):
         self._color_hex: str = color_hex.lower()
         self._color_swatch.set_color(self._color_hex)
         self._color_label.setText(self._color_hex)
+
+    def _choose_color(self) -> None:
+        current: QColor = QColor(self._color_hex)
+        color: QColorDialog = QColorDialog.getColor(
+            current, self, "Choose employee color"
+        )
+        if color.isValid():
+            self._set_color(color.name())
