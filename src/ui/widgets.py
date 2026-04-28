@@ -316,3 +316,8 @@ class CalendarDayWidget(CardFrame):
         )
         self._day_label.setStyleSheet(f"color: {text_color};")
         self._today_dot.setVisible(day.is_today)
+
+    def mousePressEvent(self, event) -> None:
+        if event.button() == Qt.MouseButton.LeftButton and self._wm is not None:
+            self.clicked.emit(self._vm.date)
+        super().mousePressEvent(event)
