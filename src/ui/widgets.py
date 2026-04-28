@@ -1,5 +1,4 @@
 from __future__ import annotations
-from datetime import date
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QFrame,
