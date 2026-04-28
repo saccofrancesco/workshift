@@ -242,3 +242,48 @@ class ShiftPanel(CardFrame):
             self._content_layout.addWidget(row)
             self.row_widgets.append(row)
         self._content_layout.addStretch(1)
+
+
+class WorkloadPanel(CardFrame):
+    export_requested: pyqtSignal = pyqtSignal()
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent, "panelFrame")
+        self.card_widgets: list[WorkloadCard] = list()
+
+        outer: QVBoxLayout = QVBoxLayout(self)
+        outer.setContentsMargins(12, 12, 12, 12)
+        outer.setSpacing(10)
+
+        header: QHBoxLayout = QHBoxLayout()
+        header.setSpacing(8)
+        title_box: QVBoxLayout = QVBoxLayout()
+        title_box.setSpacing(1)
+        title: QLabel = QLabel("Employee workload recap", self)
+        title.setObjectName("panelTitle")
+        subtitle: QLabel = QLabel("Live totals, targets, and remaining hours", self)
+        subtitle.setObjectName("panelSubtitle")
+        title_box.addWidget(title)
+        title_box.addWidget(subtitle)
+        header.addLayout(title_box, 1)
+
+        self.export_button: QPushButton = QPushButton("Export .xlsx", self)
+        self.export_button.setObjectName("primaryButton")
+        self.export_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.export_button.clicked.connect(lambda _=False: self.export_requested.emit())
+        header.addWidget(self.export_button)
+        outer.addLayout(header)
+
+        self._scroll: QScrollArea = QScrollArea(self)
+        self._scroll.setWidgetResizable(True)
+        self._scroll.setFrameShape(QFrame.Shape.NoFrame)
+
+        self._content: QWidget = QWidget(self)
+        self._content_layout: QGridLayout = QGridLayout(self._content)
+        self._content_layout.setContentsMargins(0, 0, 0, 0)
+        self._content_layout.setHorizontalSpacing(8)
+        self._content_layout.setVerticalSpacing(8)
+        self._content_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self._scroll.setWidget(self._content)
+
+        outer.addWidget(self._scroll, 1)
