@@ -47,3 +47,15 @@ def _format_sheet_title(sheet, title: str, subtitle: str, columns: int) -> None:
 
 def _apply_auto_filter(sheet, start_row: int, end_row: int, columns: int) -> None:
     sheet.auto_filter.ref = f"A{start_row}:{get_column_letter(columns)}{end_row}"
+
+
+def _set_page_setup(sheet) -> None:
+    sheet.page_setup.orientation = "landscape"
+    sheet.page_setup.fitToWidth = 1
+    sheet.page_setup.fitToHeight = 0
+    sheet.sheet_properties.pageSetUpPr.fitToPage = True
+    sheet.page_margins.left = 0.3
+    sheet.page_margins.right = 0.3
+    sheet.page_margins.top = 0.4
+    sheet.page_margins.bottom = 0.4
+    sheet.sheet_view.showGridLines = False
