@@ -188,3 +188,24 @@ class MainWindow(QMainWindow):
             self.controller.delete_shift(shift_id)
         except WorkshiftError as exc:
             self._show_error("Cannot delete shift", str(exc))
+
+    def _export_schedule(self) -> None:
+        default_name: str = f"workshift_{self.controller.selected_month:%Y-%m}.xlsx"
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export schedule",
+            default_name,
+            "Excel Workbook (*.xlsx)",
+        )
+        if not file_path:
+            return
+        if not file_path.lower().endswith(".xlsx"):
+            file_path += ".xlsx"
+        try:
+            self.controller.export_schedule(file_path)
+        except Exception as exc:
+            self._show_error("Export failed", str(exc))
+            return
+        QMessageBox.information(
+            self, "Export complete", f"Saved schedule to:\n{file_path}"
+        )
