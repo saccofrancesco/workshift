@@ -99,3 +99,63 @@ class EmployeePanel(CardFrame):
             self._content_layout.addWidget(row)
             self.row_widgets.append(row)
         self._content_layout.addStretch(1)
+
+
+class CalendarPanel(CardFrame):
+    day_selected: pyqtSignal = pyqtSignal(object)
+    previous_month_requested: pyqtSignal = pyqtSignal()
+    next_month_requested: pyqtSignal = pyqtSignal()
+    today_requested: pyqtSignal = pyqtSignal()
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent, "panelFrame")
+        self.day_cells: list[CalendarDayWidget] = list()
+
+        outer: QVBoxLayout = QVBoxLayout(self)
+        outer.setContentsMargins(12, 12, 12, 12)
+        outer.setSpacing(8)
+
+        title: QLabel = QLabel("Monthly calendar", self)
+        title.setObjectName("panelTitle")
+        outer.addWidget(title)
+
+        nav_row: QHBoxLayout = QHBoxLayout()
+        nav_row.setSpacing(6)
+        self._prev_button: QPushButton = QPushButton("Prev", self)
+        self._prev_button.clicked.connect(self.previous_month_requested.emit)
+        self._month_label: QLabel = QLabel(format_month_label(date.today()), self)
+        self._month_label.setObjectName("panelSubtitle")
+        self._month_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._next_button: QPushButton = QPushButton("Next", self)
+        self._next_button.clicked.connect(self.next_month_requested.emit)
+        self._today_button: QPushButton = QPushButton("Today", self)
+        self._today_button.clicked.connect(self.today_requested.emit)
+        nav_row.addWidget(self._prev_button)
+        nav_row.addWidget(self._month_label, 1)
+        nav_row.addWidget(self._today_button)
+        nav_row.addWidget(self._next_button)
+        outer.addLayout(nav_row)
+
+        weekday_row: QHBoxLayout = QHBoxLayout()
+        weekday_row.setSpacing(4)
+        for index in range(7):
+            label: QLabel = QLabel(weekday_abbrev(index), self)
+            label.setObjectName("panelSubtitle")
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            label.setMinimumHeight(16)
+            weekday_row.addWidget(label)
+        outer.addLayout(weekday_row)
+
+        self._grid: QGridLayout = QGridLayout()
+        self._grid.setSpacing(4)
+        for row in range(6):
+            for column in range(7):
+                cell: CalendarDayWidget = CalendarDayWidget(self)
+                cell.clicked.connect(
+                    lambda day, signal=self.day_selected: signal.emit(day)
+                )
+                self._grid.addWidget(cell, row, column)
+                self.day_cells.append(cell)
+        outer.addLayout(self._grid, 1)
+
+        self.setMinimumWidth(380)
