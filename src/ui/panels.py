@@ -159,3 +159,9 @@ class CalendarPanel(CardFrame):
         outer.addLayout(self._grid, 1)
 
         self.setMinimumWidth(380)
+
+    def set_month(self, month_date: date, grid: Sequence[CalendarDayVM]) -> None:
+        self._month_label.setText(format_month_label(month_date))
+        flattened: list[CalendarDayVM] = [day for row in grid for day in row]
+        for cell, vm in zip(self.day_cells, flattened):
+            cell.set_day(vm)
