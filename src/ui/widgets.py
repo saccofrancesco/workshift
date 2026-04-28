@@ -211,3 +211,18 @@ class WorkloadCard(CardFrame):
         layout.addLayout(top_row)
         layout.addWidget(self._summary_label)
         layout.addWidget(self._progress)
+
+    def set_workload(self, workload: EmployeeWorkloadVM) -> None:
+        self._vm: EmployeeWorkloadVM = workload
+        self._swatch.set_color(workload.color_hex)
+        self._name_label.setText(workload.full_name)
+        self._summary_label.setText(
+            " · ".join(
+                (
+                    f"{format_hours(workload.assigned_hours)} assigned",
+                    f"{format_hours(workload.target_hours)} target",
+                    f"{format_hours(workload.remaining_hours)} remaining",
+                )
+            )
+        )
+        self._progress.setValue(int(round(workload.progress_ratio * 100)))
