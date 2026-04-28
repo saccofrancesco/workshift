@@ -136,3 +136,50 @@ class EmployeeRowWidget(CardFrame):
         layout.addLayout(text_box, 1)
         layout.addWidget(self._edit_button)
         layout.addWidget(self._delete_button)
+
+
+class ShiftRowWidget(CardFrame):
+    edit_requested = pyqtSignal(str)
+    delete_requested = pyqtSignal(str)
+
+    def __init__(self, shift: ShiftRowVM, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.shift_id: str = shift.id
+        layout: QHBoxLayout = QHBoxLayout(self)
+        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(8)
+
+        self._swatch: ColorSwatch = ColorSwatch(12, self)
+        self._swatch.set_color(shift.color_hex)
+
+        text_box: QVBoxLayout = QVBoxLayout(shift)
+        text_box.setSpacing(2)
+        self._name_label: QLabel = QLabel(shift.employee_name, self)
+        self._name_label.setObjectName("rowTitle")
+        self._time_label: QLabel = QLabel(
+            format_time_range(shift.start_time, shift.end_time), self
+        )
+        self._time_label.setObjectName("rowMeta")
+        text_box.addWidget(self._name_label)
+        text_box.addWidget(self._time_label)
+
+        self._duration_label: QLabel = QLabel(format_hours(shift.duration_hours), self)
+        self._duration_label.setObjectName("rowMeta")
+
+        self._edit_button: QPushButton = QPushButton("Edit", self)
+        self._edit_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._edit_button.clicked.connect(
+            lambda _=False: self.edit_requested.emit(self.shift_id)
+        )
+        self._delete_button: QPushButton = QPushButton("Delete", self)
+        self._delete_button.setObjectName("dangerButton")
+        self._delete_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._delete_button.clicked.connect(
+            lambda _=False: self.delete_requested.emit(self.shift_id)
+        )
+
+        layout.addWidget(self._swatch)
+        layout.addWidget(text_box, 1)
+        layout.addWidget(self._duration_label)
+        layout.addWidget(self._edit_button)
+        layout.addWidget(self._delete_button)
