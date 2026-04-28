@@ -5,6 +5,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from ..domain.models import Employee, Schedule, Shift
+from .view_models import EmployeeWorkloadVM
 from .calculations import build_employee_workloads
 from .formatting import contrast_text_color, format_month_label
 
@@ -165,3 +166,64 @@ def _write_schedule_sheet(sheet, schedule: Schedule, month_date: date) -> None:
     sheet.freeze_panes = "A5"
     _set_page_setup(sheet)
     _set_widths(sheet, {"A": 14, "B": 14, "C": 26, "D": 12, "E": 12, "F": 12})
+
+
+def _write_workload_sheet(sheet, schedule: Schedule, month_date: date) -> None:
+    rows: list[EmployeeWorkloadVM] = build_employee_workloads(schedule, month_date)
+    _format_sheet_title(
+        sheet,
+        f"Workload - {format_month_label(month_date)}",
+        "Target hours versus assigned hours",
+        5,
+    )
+    headers_row: int = 4
+    headers: list[str] = [
+        "Employee",
+        "Assigned Hours",
+        "Target Hours",
+        "Remaining Hours",
+        "Utilization",
+    ]
+    for index, header in enumerate(headers, start=1):
+        sheet.cell(row=headers_row, column=index, value=header)
+    _style_header_row(sheet, headers_row, len(headers))
+
+    start_row: int = headers_row + 1
+    if not rows:
+        sheet.cell(row=start_row, column=1, value="No employees available.")
+        sheet.merge_cells(
+            start_row=start_row, start_column=1, end_row=start_row, end_column=5
+        )
+        sheet.cell(row=start_row, column=1).alignment = Alignment(horizontal="center")
+        _set_page_setup(sheet)
+        _set_widths(sheet, {"A": 26, "B": 16, "C": 16, "D": 18, "E": 16})
+        return
+
+    for index, row in enumerate(rows, start=start_row):
+        employee_cell = sheet.cell(row=index, column=1, value=row.full_name)
+        assigned_cell = sheet.cell(row=index, column=2, value=row.assigned_hours)
+        target_cell = sheet.cell(row=index, column=3, value=row.target_hours)
+        remaining_cell = sheet.cell(row=index, column=4, value=row.remaining_hours)
+        utilization_cell = sheet.cell(row=index, column=5, value=row.progress_ratio)
+
+        employee_cell.fill = _solid_fill(row.color_hex)
+        employee_cell.font = Font(
+            color=_font_color(contrast_text_color(row.color_hex)), bold=True
+        )
+        for cell in (assigned_cell, target_cell, remaining_cell):
+            cell.number_format = "0.00"
+        utilization_cell.number_format = "0%"
+        for cell in (
+            employee_cell,
+            assigned_cell,
+            target_cell,
+            remaining_cell,
+            utilization_cell,
+        ):
+            cell.alignment = Alignment(vertical="center")
+            _apply_border(cell)
+
+    _apply_auto_filter(sheet, headers_row, start_row + len(rows) - 1, len(headers))
+    sheet.freeze_panes = "A5"
+    _set_page_setup(sheet)
+    _set_widths(sheet, {"A": 26, "B": 16, "C": 16, "D": 18, "E": 16})
