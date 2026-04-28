@@ -41,3 +41,10 @@ def require_employee(schedule: Schedule, employee_id: str) -> Employee:
         if employee.id == employee_id:
             return employee
     raise WorkshiftError("Selected employee no longer exists.")
+
+
+def require_shift(schedule: Schedule, shift_id: str) -> Shift:
+    for shift in schedule.shifts:
+        if shift.id == shift_id:
+            return shift
+    raise WorkshiftError("Selected shift no longer exists.")
