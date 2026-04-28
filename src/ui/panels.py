@@ -287,3 +287,24 @@ class WorkloadPanel(CardFrame):
         self._scroll.setWidget(self._content)
 
         outer.addWidget(self._scroll, 1)
+
+    def set_workloads(self, workloads: Sequence[EmployeeWorkloadVM]) -> None:
+        clear_layout(self._content_layout)
+        self.card_widgets: list[WorkloadCard] = list()
+        if not workloads:
+            self._content_layout.addWidget(
+                make_empty_label("Add people and shifts to see the workload recap."),
+                0,
+                0,
+            )
+            return
+        columns: int = 3
+        for index, workload in enumerate(workloads):
+            row: int = index // columns
+            column: int = index % columns
+            card: WorkloadCard = WorkloadCard(self._content)
+            card.set_workload(workload)
+            self._content_layout.addWidget(card, row, column)
+            self.card_widgets.append(card)
+        for column in range(columns):
+            self._content_layout.setColumnStretch(column, 1)
