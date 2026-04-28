@@ -65,6 +65,7 @@ class MainWindow(QMainWindow):
         self.employee_panel.add_requested.connect(self._add_employee)
         self.employee_panel.edit_requested.connect(self._edit_employee)
         self.employee_panel.delete_requested.connect(self._delete_employee)
+        self.shift_panel.add_requested.connect(self._add_shift)
         self.controller.changed.connect(self.refresh)
 
         self.refresh()
