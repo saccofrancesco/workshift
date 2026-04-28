@@ -126,3 +126,21 @@ class MainWindow(QMainWindow):
             self.controller.delete_employee(employee_id)
         except WorkshiftError as exc:
             self._show_error("Cannot delete person", str(exc))
+
+    def _add_shift(self) -> None:
+        if not self.controller.schedule.employees:
+            QMessageBox.information(
+                self, "No employees", "Add a person before creating shifts."
+            )
+            return
+        dialog: ShiftDialog = ShiftDialog(
+            self.controller.selected_day,
+            self.controller.schedule.employees,
+            parent=self,
+        )
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        try:
+            self.controller.add_shift(**dialog.get_values())
+        except WorkshiftError as exc:
+            self._show_error("Cannot add shift", str(exc))
