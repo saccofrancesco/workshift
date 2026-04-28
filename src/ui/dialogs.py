@@ -240,3 +240,9 @@ class ShiftDialog(QDialog):
             self.set_shift(shift, employees)
 
         self._employee_combo.setEnabled(bool(employees))
+
+    def set_shift(self, shift: Shift) -> None:
+        self._shift_date: date = shift.shift_date
+        self._find_and_select_employee(shift.employee_id)
+        self._start_time.setTime(QTime(shift.start_time.hour, shift.start_time.minute))
+        self._end_time.setTime(QTime(shift.end_time.hour, shift.end_time.minute))
