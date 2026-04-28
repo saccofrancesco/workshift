@@ -34,3 +34,10 @@ def validate_employee_fields(
         raise WorkshiftError("Weekly target hours cannot be negative.")
     normalized_workdays: tuple[int, ...] = normalize_workdays(workdays)
     return first_name, last_name, weekly_target_hours, normalized_workdays
+
+
+def require_employee(schedule: Schedule, employee_id: str) -> Employee:
+    for employee in schedule.employees:
+        if employee.id == employee_id:
+            return employee
+    raise WorkshiftError("Selected employee no longer exists.")
