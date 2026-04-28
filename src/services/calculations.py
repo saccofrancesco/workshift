@@ -21,3 +21,16 @@ def add_months(value: date, delta: int) -> date:
 
 def month_day_count(value: date) -> int:
     return monthrange(value.year, value.month)[1]
+
+
+def employee_display_rows(schedule: Schedule) -> list[EmployeeListItemVM]:
+    return [
+        EmployeeListItemVM(
+            id=employee.id,
+            full_name=employee.full_name,
+            color_hex=employee.color_hex,
+            weekly_target_hours=employee.weekly_target_hours,
+            workdays=employee.workdays,
+        )
+        for employee in schedule.employees
+    ]
