@@ -101,3 +101,29 @@ def assigned_hours_for_employee(
         if shift.employee_id == employee_id
         and (shift.shift_date.year, shift.shift_date.month) == month_index
     )
+
+
+def build_employee_workloads(
+    schedule: Schedule, month_date: date
+) -> list[EmployeeWorkloadVM]:
+    workloads: list[EmployeeWorkloadVM] = list()
+    for employee in schedule.employees:
+        assigned: float = assigned_hours_for_employee(schedule, employee.id, month_date)
+        target: float = monthly_target_hours(employee, month_date)
+        remaining: float = target - assigned
+        if target <= 0:
+            progress: float = 1.0 if assigned > 0 else 0.0
+        else:
+            progress: float = max(0.0, min(assigned / target, 1.0))
+        workloads.append(
+            EmployeeWorkloadVM(
+                id=employee.id,
+                full_name=employee.full_name,
+                color_hex=employee.color_hex,
+                assigned_hours=assigned,
+                target_hours=target,
+                remaining_hours=remaining,
+                progress_ratio=progress,
+            )
+        )
+    return workloads
