@@ -151,3 +151,17 @@ class WorkshiftController(QObject):
         employee.color_hex = _normalize_color_hex(color_hex)
         self.changed.emit()
         return employee
+
+    def delete_employee(self, employee_id: str) -> int:
+        require_employee(self.schedule, employee_id)
+        removed: int = self.count_employee_shifts(employee_id)
+        self.schedule.employees = [
+            employee
+            for employee in self.schedule.employees
+            if employee.id != employee_id
+        ]
+        self.schedule.shifts = [
+            shift for shift in self.schedule.shifts if shift.employee_id != employee_id
+        ]
+        self.changed.emit()
+        return removed
