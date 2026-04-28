@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datetime import date, time
+from datetime import date
 from typing import Sequence
 from ..domain.models import Employee, Shift
 from ..services.formatting import format_full_date_label
