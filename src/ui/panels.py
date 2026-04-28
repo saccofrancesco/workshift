@@ -219,3 +219,6 @@ class ShiftPanel(CardFrame):
         outer.addWidget(self._scroll, 1)
 
         self.setMinimumWidth(300)
+
+    def set_selected_day(self, selected_day: date) -> None:
+        self._selected_day_label.setText(format_full_date_label(selected_day))
