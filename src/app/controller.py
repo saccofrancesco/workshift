@@ -28,3 +28,16 @@ def _normalize_color_hex(color_hex: str) -> str:
     if len(value) != 7:
         raise WorkshiftError("Color must be a hex value like #2563eb.")
     return value.lower()
+
+
+class WorkshiftController(QObject):
+    changed: pyqtSignal = pyqtSignal()
+
+    def __init__(
+        self, schedule: Schedule | None = None, today: date | None = None
+    ) -> None:
+        super().__init__()
+        self.state: SessionState = SessionState(
+            schedule=schedule or Schedule(),
+            view_state=create_default_view_state(today),
+        )
