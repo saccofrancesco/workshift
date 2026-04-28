@@ -216,3 +216,7 @@ class WorkshiftController(QObject):
             shift for shift in self.schedule.shifts if shift.id != shift_id
         ]
         self.changed.emit()
+
+    def export_schedule(self, file_path: str) -> str:
+        export_schedule_xlsx(self.schedule, self.selected_month, file_path)
+        return file_path
