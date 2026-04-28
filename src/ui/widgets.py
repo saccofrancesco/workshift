@@ -71,7 +71,7 @@ class WeekdaySelector(QWidget):
         for index in range(7):
             button: QToolButton = QToolButton(self)
             button.setCheckable(True)
-            button.setObjectName("workdayButton")
+            button.setObjectName("weekdayButton")
             button.setText(weekday_abbrev(index))
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             button.toggled.connect(self._emit_change)
