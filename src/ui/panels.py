@@ -80,3 +80,22 @@ class EmployeePanel(CardFrame):
         outer.addWidget(self._scroll, 1)
 
         self.setMinimumWidth(280)
+
+    def set_employees(self, employees: Sequence[EmployeeListItemVM]) -> None:
+        clear_layout(self._content_layout)
+        self.row_widgets = list()
+        if not employees:
+            self._content_layout.addWidget(
+                make_empty_label(
+                    "No employees yet. Add a person to start planning shifts"
+                )
+            )
+            self._content_layout.addStretch(1)
+            return
+        for employee in employees:
+            row: EmployeeRowWidget = EmployeeRowWidget(employee, self._content)
+            row.edit_requested.connect(self.edit_requested.emit)
+            row.delete_requested.connect(self.delete_requested.emit)
+            self._content_layout.addWidget(row)
+            self.row_widgets.append(row)
+        self._content_layout.addStretch(1)
