@@ -113,3 +113,10 @@ class EmployeeDialog(QDialog):
             self.set_employee(employee)
         else:
             self._weekday_selector.set_selected_days((0, 1, 2, 3, 4))
+
+    def set_employee(self, employee: Employee) -> None:
+        self._first_name.setText(employee.first_name)
+        self._last_name.setText(employee.last_name)
+        self._weekly_target.setValue(employee.weekly_target_hours)
+        self._weekday_selector.set_selected_days(employee.workdays)
+        self._set_color(employee.color_hex)
