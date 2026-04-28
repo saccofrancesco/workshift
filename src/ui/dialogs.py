@@ -146,3 +146,15 @@ class EmployeeDialog(QDialog):
             "workdays": self._weekday_selector.selected_days(),
             "color_hex": self._color_hex,
         }
+
+    def accept(self) -> None:
+        if not self._first_name.text().strip():
+            QMessageBox.warning(self, "Missing data", "First name is required.")
+            return
+        if not self._last_name.text().strip():
+            QMessageBox.warning(self, "Missing data", "Last name is required.")
+            return
+        if not self._weekday_selector.selected_days():
+            QMessageBox.warning(self, "Missing data", "Select at least one workday.")
+            return
+        super().accept()
