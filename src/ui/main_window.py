@@ -4,7 +4,7 @@ from ..app.controller import WorkshiftController
 from ..services.view_models import EmployeeListItemVM
 from ..services.formatting import format_full_date_label, format_time_range
 from ..services.validation import WorkshiftError
-from ..domain.models import Employee
+from ..domain.models import Employee, Shift
 from .dialogs import DeleteConfirmDialog, EmployeeDialog, ShiftDialog
 from .panels import CalendarPanel, EmployeePanel, ShiftPanel, WorkloadPanel
 from PyQt6.QtCore import Qt
@@ -145,3 +145,22 @@ class MainWindow(QMainWindow):
             self.controller.add_shift(**dialog.get_values())
         except WorkshiftError as exc:
             self._show_error("Cannot add shift", str(exc))
+
+    def _edit_shift(self, shift_id: str) -> None:
+        try:
+            shift: Shift = self.controller.get_shift(shift_id)
+        except WorkshiftError as exc:
+            self._show_error("Cannot edit shift", str(exc))
+            return
+        dialog: ShiftDialog = ShiftDialog(
+            shift.shift_date,
+            self.controller.schedule.employees,
+            shift=shift,
+            parent=self,
+        )
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        try:
+            self.controller.edit_shift(shift_id, **dialog.get_values())
+        except WorkshiftError as exc:
+            self._show_error("Cannot edit shift", str(exc))
