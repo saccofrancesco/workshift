@@ -133,3 +133,7 @@ class EmployeeDialog(QDialog):
         )
         if color.isValid():
             self._set_color(color.name())
+
+    def _on_selection_changed(self) -> None:
+        # No-op for now; the button state is validated on save.
+        pass
