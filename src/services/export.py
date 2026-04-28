@@ -43,3 +43,7 @@ def _format_sheet_title(sheet, title: str, subtitle: str, columns: int) -> None:
     subtitle_cell.font = Font(size=10, color="475569")
     title_cell.alignment = Alignment(horizontal="left")
     subtitle_cell.alignment = Alignment(horizontal="left")
+
+
+def _apply_auto_filter(sheet, start_row: int, end_row: int, columns: int) -> None:
+    sheet.auto_filter.ref = f"A{start_row}:{get_column_letter(columns)}{end_row}"
