@@ -57,3 +57,31 @@ class WorkshiftController(QObject):
     @property
     def selected_month(self) -> date:
         return self.view_state.selected_month
+
+    def month_label(self) -> str:
+        return format_month_label(self.selected_month)
+
+    def employee_rows(self):
+        return employee_display_rows(self.schedule)
+
+    def calendar_grid(self):
+        return build_calendar_grid(
+            self.schedule, self.selected_month, self.selected_day
+        )
+
+    def daily_shift_rows(self):
+        return build_daily_shift_rows(self.schedule, self.selected_day)
+
+    def workload_rows(self):
+        return build_employee_workloads(self.schedule, self.selected_month)
+
+    def count_employee_shifts(self, employee_id: str) -> int:
+        return sum(
+            1 for shift in self.schedule.shifts if shift.employee_id == employee_id
+        )
+
+    def get_employee(self, employee_id: str) -> Employee:
+        return require_employee(self.schedule, employee_id)
+
+    def get_shift(self, shift_id: str) -> Shift:
+        return require_shift(self.schedule, shift_id)
