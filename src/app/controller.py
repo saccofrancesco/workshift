@@ -165,3 +165,23 @@ class WorkshiftController(QObject):
         ]
         self.changed.emit()
         return removed
+
+    def add_shift(
+        self,
+        employee_id: str,
+        shift_date: date,
+        start_time: time,
+        end_time: time,
+    ) -> Shift:
+        validate_shift_fields(
+            self.schedule, employee_id, shift_date, start_time, end_time
+        )
+        shift: Shift = Shift(
+            employee_id=employee_id,
+            shift_date=shift_date,
+            start_time=start_time,
+            end_time=end_time,
+        )
+        self.schedule.shifts.append(shift)
+        self.changed.emit()
+        return shift
