@@ -76,3 +76,6 @@ class MainWindow(QMainWindow):
         self.shift_panel.set_shifts(self.controller.daily_shift_rows())
         self.workload_panel.set_workloads(self.controller.workload_rows())
         self.setWindowTitle(f"Workshift - {self.controller.month_label()}")
+
+    def _show_error(self, title: str, message: str) -> None:
+        QMessageBox.warning(self, title, message)
