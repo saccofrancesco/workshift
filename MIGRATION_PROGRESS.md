@@ -124,6 +124,7 @@ Status: [~] In progress
 - [x] Removed top application title bar to recover dashboard space and moved theme toggle into in-panel controls.
 - [x] Added stricter resizable panel constraints (min/max sizes) to avoid unusable narrow sections.
 - [x] Fixed panel sizing regression caused by `react-resizable-panels` v4 unit semantics (numeric sizes interpreted as pixels); migrated panel sizing constraints to percentage strings.
+- [x] Fixed calendar clipping when the bottom recap panel is expanded by making the day-grid area internally scrollable.
 - [~] Fine-grain visual parity polish and interaction micro-details remaining.
 
 ## 7) State Management
@@ -171,6 +172,7 @@ Status: [~] In progress
 - [x] Revalidated lint/build/native compile after contrast/radius/resizing updates and top-bar removal (2026-05-21).
 - [x] Revalidated lint/build after theme-provider replacement and hydration-mismatch fix (2026-05-21).
 - [x] Revalidated lint/build after panel-size unit fix for resizable layout (2026-05-21).
+- [x] Revalidated lint/build after calendar scrollability fix under constrained vertical space (2026-05-21).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.

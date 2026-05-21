@@ -452,49 +452,51 @@ export function WorkshiftApp() {
                       ))}
                     </div>
 
-                    <div className="grid flex-1 grid-cols-7 gap-1">
-                      {controller.calendarGrid.flat().map((day) => (
-                        <button
-                          key={`${day.date.toISOString()}-${day.dayNumber}`}
-                          type="button"
-                          title={day.tooltip}
-                          onClick={() => controller.setSelectedDay(day.date)}
-                          className={cn(
-                            "flex min-h-16 cursor-pointer flex-col rounded-xl border p-2 text-left transition-colors",
-                            day.inCurrentMonth
-                              ? "bg-card hover:bg-accent/70"
-                              : "bg-muted/45 text-muted-foreground",
-                            day.isToday && "border-primary/60",
-                            day.isSelected &&
-                              "border-primary bg-primary/15 text-foreground hover:bg-primary/20"
-                          )}
-                        >
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm font-semibold">{day.dayNumber}</span>
-                            <span
-                              className={cn(
-                                "ml-auto inline-flex size-1.5 rounded-full",
-                                day.isToday ? "bg-primary" : "bg-transparent"
-                              )}
-                            />
-                          </div>
-                          <div className="mt-auto flex items-center gap-1">
-                            {day.employeeColors.slice(0, 3).map((color, index) => (
-                              <span
-                                key={`${day.dayNumber}-${index}`}
-                                className="inline-flex size-2 rounded-full"
-                                style={{ backgroundColor: color }}
-                              />
-                            ))}
-                            {day.overflowCount > 0 && (
-                              <span className="rounded bg-muted px-1 text-xs font-medium text-muted-foreground">
-                                +{day.overflowCount}
-                              </span>
+                    <ScrollArea className="min-h-0 flex-1">
+                      <div className="grid grid-cols-7 gap-1 pr-2">
+                        {controller.calendarGrid.flat().map((day) => (
+                          <button
+                            key={`${day.date.toISOString()}-${day.dayNumber}`}
+                            type="button"
+                            title={day.tooltip}
+                            onClick={() => controller.setSelectedDay(day.date)}
+                            className={cn(
+                              "flex min-h-16 cursor-pointer flex-col rounded-xl border p-2 text-left transition-colors",
+                              day.inCurrentMonth
+                                ? "bg-card hover:bg-accent/70"
+                                : "bg-muted/45 text-muted-foreground",
+                              day.isToday && "border-primary/60",
+                              day.isSelected &&
+                                "border-primary bg-primary/15 text-foreground hover:bg-primary/20"
                             )}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
+                          >
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm font-semibold">{day.dayNumber}</span>
+                              <span
+                                className={cn(
+                                  "ml-auto inline-flex size-1.5 rounded-full",
+                                  day.isToday ? "bg-primary" : "bg-transparent"
+                                )}
+                              />
+                            </div>
+                            <div className="mt-auto flex items-center gap-1">
+                              {day.employeeColors.slice(0, 3).map((color, index) => (
+                                <span
+                                  key={`${day.dayNumber}-${index}`}
+                                  className="inline-flex size-2 rounded-full"
+                                  style={{ backgroundColor: color }}
+                                />
+                              ))}
+                              {day.overflowCount > 0 && (
+                                <span className="rounded bg-muted px-1 text-xs font-medium text-muted-foreground">
+                                  +{day.overflowCount}
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </ScrollArea>
                   </CardContent>
                 </Card>
               </ResizablePanel>
