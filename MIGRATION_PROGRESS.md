@@ -20,7 +20,7 @@ Last updated: 2026-05-21
 - [~] File system/native APIs
 - [~] Styling parity
 - [~] Testing
-- [ ] Final cleanup
+- [~] Final cleanup
 
 ## 1) App Architecture Analysis
 Status: [x] Finished
@@ -164,7 +164,11 @@ Status: [~] In progress
 - [ ] Perform side-by-side manual QA against PyQt app.
 
 ## 13) Final Cleanup
-Status: [ ] Not started
+Status: [~] In progress
+- [x] Remove legacy PyQt6 runtime/build files from repository:
+  - Deleted `src/` legacy PyQt6 codebase.
+  - Deleted `main.py`, `requirements.txt`, `.python-version`.
+  - Deleted old PyInstaller CI workflow `.github/workflows/build.yml`.
 - [ ] Remove migration scaffolding and dead code.
 - [ ] Final type/lint pass.
 - [ ] Final parity review and residual differences log.
