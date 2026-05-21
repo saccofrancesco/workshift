@@ -189,6 +189,14 @@ export function WorkshiftApp() {
   const [infoState, setInfoState] = useState<NoticeState | null>(null)
 
   const employeeOptions = controller.state.schedule.employees
+  const employeeNameById = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const employee of employeeOptions) {
+      const fullName = `${employee.firstName} ${employee.lastName}`.trim()
+      map.set(employee.id, fullName || "Unnamed employee")
+    }
+    return map
+  }, [employeeOptions])
   const selectedDayLabel = useMemo(
     () => formatFullDateLabel(controller.state.viewState.selectedDay),
     [controller.state.viewState.selectedDay]
@@ -852,12 +860,23 @@ export function WorkshiftApp() {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select an employee" />
+                  <SelectValue placeholder="Select an employee">
+                    {(value) => {
+                      if (!value) {
+                        return "Select an employee"
+                      }
+                      return employeeNameById.get(String(value)) ?? "Unknown employee"
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {employeeOptions.map((employee) => (
-                    <SelectItem key={employee.id} value={employee.id}>
-                      {employee.firstName} {employee.lastName}
+                    <SelectItem
+                      key={employee.id}
+                      value={employee.id}
+                      label={employeeNameById.get(employee.id)}
+                    >
+                      {employeeNameById.get(employee.id)}
                     </SelectItem>
                   ))}
                 </SelectContent>

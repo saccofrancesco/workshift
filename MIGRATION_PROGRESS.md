@@ -138,6 +138,9 @@ Status: [~] In progress
   - No default employee preselection; explicit employee choice required.
   - Removed date field from the shift dialog (date is the currently selected calendar day).
   - Removed quick-shift preset buttons for a cleaner, minimal dialog.
+- [x] Fixed Add Shift employee select visualization:
+  - Keep shadcn Select dropdown behavior.
+  - Trigger now displays employee full name instead of internal ID value.
 - [~] Fine-grain visual parity polish and interaction micro-details remaining.
 
 ## 7) State Management
@@ -190,6 +193,7 @@ Status: [~] In progress
 - [x] Revalidated lint/build using pinned Node `v24.14.0` runtime (2026-05-21).
 - [x] Revalidated lint/build after default-shadcn visual reset + dialog UX refactor (2026-05-21).
 - [x] Revalidated lint/build after section-separation contrast tune + simplified Add Shift dialog flow (2026-05-21).
+- [x] Revalidated lint after Add Shift employee-label visualization fix (2026-05-21).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.
