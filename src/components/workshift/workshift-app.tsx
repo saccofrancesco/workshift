@@ -407,7 +407,7 @@ export function WorkshiftApp() {
                 </Card>
               </ResizablePanel>
 
-              <ResizableHandle withHandle className="bg-border/65" />
+              <ResizableHandle withHandle />
 
               <ResizablePanel defaultSize="56%" minSize="40%">
                 <Card className="h-full">
@@ -452,56 +452,56 @@ export function WorkshiftApp() {
                       ))}
                     </div>
 
-                    <ScrollArea className="min-h-0 flex-1">
-                      <div className="grid grid-cols-7 gap-1 pr-2">
-                        {controller.calendarGrid.flat().map((day) => (
-                          <button
-                            key={`${day.date.toISOString()}-${day.dayNumber}`}
-                            type="button"
-                            title={day.tooltip}
-                            onClick={() => controller.setSelectedDay(day.date)}
-                            className={cn(
-                              "flex min-h-16 cursor-pointer flex-col rounded-xl border p-2 text-left transition-colors",
-                              day.inCurrentMonth
-                                ? "bg-card hover:bg-accent/70"
-                                : "bg-muted/45 text-muted-foreground",
-                              day.isToday && "border-primary/60",
-                              day.isSelected &&
-                                "border-primary bg-primary/15 text-foreground hover:bg-primary/20"
-                            )}
-                          >
-                            <div className="flex items-center gap-1">
-                              <span className="text-sm font-semibold">{day.dayNumber}</span>
-                              <span
-                                className={cn(
-                                  "ml-auto inline-flex size-1.5 rounded-full",
-                                  day.isToday ? "bg-primary" : "bg-transparent"
-                                )}
-                              />
-                            </div>
-                            <div className="mt-auto flex items-center gap-1">
-                              {day.employeeColors.slice(0, 3).map((color, index) => (
-                                <span
-                                  key={`${day.dayNumber}-${index}`}
-                                  className="inline-flex size-2 rounded-full"
-                                  style={{ backgroundColor: color }}
-                                />
-                              ))}
-                              {day.overflowCount > 0 && (
-                                <span className="rounded bg-muted px-1 text-xs font-medium text-muted-foreground">
-                                  +{day.overflowCount}
-                                </span>
+                    <div className="grid h-full min-h-0 grid-cols-7 grid-rows-6 gap-1">
+                      {controller.calendarGrid.flat().map((day) => (
+                        <button
+                          key={`${day.date.toISOString()}-${day.dayNumber}`}
+                          type="button"
+                          title={day.tooltip}
+                          onClick={() => controller.setSelectedDay(day.date)}
+                          className={cn(
+                            "flex h-full min-h-0 cursor-pointer flex-col justify-between gap-1 overflow-hidden rounded-xl border p-1.5 text-left transition-colors sm:p-2",
+                            day.inCurrentMonth
+                              ? "bg-card hover:bg-accent/70"
+                              : "bg-muted/45 text-muted-foreground",
+                            day.isToday && "border-primary/60",
+                            day.isSelected &&
+                              "border-primary bg-primary/15 text-foreground hover:bg-primary/20"
+                          )}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs font-semibold leading-none sm:text-sm">
+                              {day.dayNumber}
+                            </span>
+                            <span
+                              className={cn(
+                                "ml-auto inline-flex size-1.5 rounded-full",
+                                day.isToday ? "bg-primary" : "bg-transparent"
                               )}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </ScrollArea>
+                            />
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {day.employeeColors.slice(0, 3).map((color, index) => (
+                              <span
+                                key={`${day.dayNumber}-${index}`}
+                                className="inline-flex size-1.5 rounded-full sm:size-2"
+                                style={{ backgroundColor: color }}
+                              />
+                            ))}
+                            {day.overflowCount > 0 && (
+                              <span className="rounded bg-muted px-1 text-[10px] font-medium text-muted-foreground sm:text-xs">
+                                +{day.overflowCount}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
               </ResizablePanel>
 
-              <ResizableHandle withHandle className="bg-border/65" />
+              <ResizableHandle withHandle />
 
               <ResizablePanel defaultSize="22%" minSize="18%" maxSize="30%">
                 <Card className="h-full">
@@ -570,7 +570,7 @@ export function WorkshiftApp() {
             </ResizablePanelGroup>
           </ResizablePanel>
 
-          <ResizableHandle withHandle className="bg-border/65" />
+          <ResizableHandle withHandle />
 
           <ResizablePanel defaultSize="34%" minSize="22%" maxSize="44%">
             <Card className="h-full">
