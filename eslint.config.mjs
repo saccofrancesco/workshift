@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local Python and Rust/Tauri generated artifacts:
+    ".venv/**",
+    "src-tauri/target/**",
   ]),
 ]);
 

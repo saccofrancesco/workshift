@@ -4,9 +4,12 @@ import { useMemo, useState } from "react"
 
 import { save } from "@tauri-apps/plugin-dialog"
 import { writeFile } from "@tauri-apps/plugin-fs"
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -31,7 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "@/lib/utils"
 import {
   createDefaultSessionState,
   formatFullDateLabel,
@@ -134,6 +137,7 @@ function ensureXlsxExtension(path: string): string {
 
 export function WorkshiftApp() {
   const controller = useWorkshift(createDefaultSessionState())
+  const { theme, resolvedTheme, setTheme } = useTheme()
 
   const [employeeDialog, setEmployeeDialog] =
     useState<EmployeeDialogState>({ open: false })
@@ -159,6 +163,9 @@ export function WorkshiftApp() {
     () => formatFullDateLabel(controller.state.viewState.selectedDay),
     [controller.state.viewState.selectedDay]
   )
+
+  const isDark =
+    theme === "system" ? resolvedTheme === "dark" : theme === "dark"
 
   const executeSafely = (title: string, action: () => void) => {
     try {
@@ -340,170 +347,144 @@ export function WorkshiftApp() {
   }
 
   return (
-    <main className="h-screen min-h-screen bg-[#eef2f7] p-3 text-[#0f172a]">
-      <ResizablePanelGroup orientation="vertical" className="gap-2">
-        <ResizablePanel defaultSize={62} minSize={40}>
-          <ResizablePanelGroup orientation="horizontal" className="gap-2">
-            <ResizablePanel defaultSize={22} minSize={16}>
-              <Card className="h-full rounded-2xl border border-[#d9e0ea] bg-white py-0">
-                <CardHeader className="px-3 pt-3 pb-2">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-[15px] font-bold text-[#0f172a]">
-                      Employees
-                    </CardTitle>
-                    <div className="ml-auto">
-                      <Button
-                        size="sm"
-                        className="h-8 rounded-lg bg-[#2563eb] px-3 text-white hover:bg-[#1d4ed8]"
-                        onClick={openAddEmployeeDialog}
-                      >
+    <main className="min-h-screen bg-muted/30 p-4">
+      <div className="mx-auto flex h-[calc(100vh-2rem)] min-h-[700px] max-w-[1800px] flex-col gap-3">
+        <header className="flex items-center gap-2">
+          <div>
+            <h1 className="text-lg font-semibold">Workshift</h1>
+            <p className="text-xs text-muted-foreground">{controller.monthLabel}</p>
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            className="ml-auto"
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+            aria-label="Toggle theme"
+          >
+            {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          </Button>
+        </header>
+
+        <ResizablePanelGroup orientation="vertical" className="flex-1 gap-2">
+          <ResizablePanel defaultSize={62} minSize={40}>
+            <ResizablePanelGroup orientation="horizontal" className="gap-2">
+              <ResizablePanel defaultSize={22} minSize={16}>
+                <Card className="h-full">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-2">
+                      <CardTitle>Employees</CardTitle>
+                      <Button size="sm" className="ml-auto" onClick={openAddEmployeeDialog}>
                         Add person
                       </Button>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="h-[calc(100%-52px)] px-3 pb-3">
-                  <ScrollArea className="h-full">
-                    <div className="space-y-2 pr-2">
-                      {controller.employeeRows.length === 0 && (
-                        <p className="rounded-xl px-3 py-3 text-center text-[12px] italic text-[#64748b]">
-                          No employees yet. Add a person to start planning shifts
-                        </p>
-                      )}
+                  </CardHeader>
+                  <CardContent className="h-[calc(100%-64px)]">
+                    <ScrollArea className="h-full">
+                      <div className="space-y-2 pr-2">
+                        {controller.employeeRows.length === 0 && (
+                          <p className="rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
+                            No employees yet. Add a person to start planning shifts.
+                          </p>
+                        )}
 
-                      {controller.employeeRows.map((employee) => (
-                        <div
-                          key={employee.id}
-                          className="rounded-xl border border-[#d9e0ea] bg-white px-3 py-2"
-                        >
-                          <div className="flex items-start gap-2">
-                            <span
-                              className="mt-1 inline-flex size-3 shrink-0 rounded-full"
-                              style={{ backgroundColor: employee.colorHex }}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-[12px] font-semibold text-[#0f172a]">
-                                {employee.fullName}
-                              </p>
-                              <p className="truncate text-[11px] text-[#64748b]">
-                                {formatHours(employee.monthlyTargetHours)} / month ·{" "}
-                                {formatHours(employee.lunchBreakHours)} lunch break
-                              </p>
+                        {controller.employeeRows.map((employee) => (
+                          <div key={employee.id} className="rounded-lg border bg-card p-3">
+                            <div className="flex items-start gap-2">
+                              <span
+                                className="mt-1 inline-flex size-3 shrink-0 rounded-full"
+                                style={{ backgroundColor: employee.colorHex }}
+                              />
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate font-medium">{employee.fullName}</p>
+                                <p className="truncate text-xs text-muted-foreground">
+                                  {formatHours(employee.monthlyTargetHours)} / month ·{" "}
+                                  {formatHours(employee.lunchBreakHours)} lunch break
+                                </p>
+                              </div>
+                            </div>
+                            <div className="mt-3 flex justify-end gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openEditEmployeeDialog(employee.id)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => requestDeleteEmployee(employee.id)}
+                              >
+                                Delete
+                              </Button>
                             </div>
                           </div>
-                          <div className="mt-2 flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-7 rounded-lg border-[#d8e0ea] bg-white px-2.5 text-[11px]"
-                              onClick={() => openEditEmployeeDialog(employee.id)}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              className="h-7 rounded-lg border border-[#fecdd3] bg-[#fff1f2] px-2.5 text-[11px] text-[#be123c] hover:bg-[#ffe4e6]"
-                              onClick={() => requestDeleteEmployee(employee.id)}
-                            >
-                              Delete
-                            </Button>
-                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              </ResizablePanel>
+
+              <ResizableHandle withHandle className="bg-transparent" />
+
+              <ResizablePanel defaultSize={56} minSize={34}>
+                <Card className="h-full">
+                  <CardHeader className="pb-2">
+                    <CardTitle>Monthly calendar</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex h-[calc(100%-64px)] flex-col gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <Button size="sm" variant="outline" onClick={() => controller.moveMonth(-1)}>
+                        Prev
+                      </Button>
+                      <div className="flex-1 text-center text-xs text-muted-foreground">
+                        {controller.monthLabel}
+                      </div>
+                      <Button size="sm" variant="outline" onClick={() => controller.goToday()}>
+                        Today
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => controller.moveMonth(1)}>
+                        Next
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1">
+                      {Array.from({ length: 7 }).map((_, weekdayIndex) => (
+                        <div
+                          key={weekdayIndex}
+                          className="text-center text-xs text-muted-foreground"
+                        >
+                          {weekdayAbbrev(weekdayIndex)}
                         </div>
                       ))}
                     </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </ResizablePanel>
 
-            <ResizableHandle withHandle className="bg-transparent" />
-
-            <ResizablePanel defaultSize={56} minSize={34}>
-              <Card className="h-full rounded-2xl border border-[#d9e0ea] bg-white py-0">
-                <CardHeader className="px-3 pt-3 pb-2">
-                  <CardTitle className="text-[15px] font-bold text-[#0f172a]">
-                    Monthly calendar
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex h-[calc(100%-52px)] flex-col gap-2 px-3 pb-3">
-                  <div className="flex items-center gap-1.5">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-8 rounded-lg border-[#d8e0ea] bg-white px-2.5"
-                      onClick={() => controller.moveMonth(-1)}
-                    >
-                      Prev
-                    </Button>
-                    <div className="flex-1 text-center text-[11px] text-[#64748b]">
-                      {controller.monthLabel}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-8 rounded-lg border-[#d8e0ea] bg-white px-2.5"
-                      onClick={() => controller.goToday()}
-                    >
-                      Today
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-8 rounded-lg border-[#d8e0ea] bg-white px-2.5"
-                      onClick={() => controller.moveMonth(1)}
-                    >
-                      Next
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-7 gap-1">
-                    {Array.from({ length: 7 }).map((_, weekdayIndex) => (
-                      <div
-                        key={weekdayIndex}
-                        className="text-center text-[11px] text-[#64748b]"
-                      >
-                        {weekdayAbbrev(weekdayIndex)}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="grid flex-1 grid-cols-7 gap-1">
-                    {controller.calendarGrid.flat().map((day) => {
-                      const dayBorder = day.isSelected
-                        ? "#2563eb"
-                        : day.isToday
-                          ? "#2563eb"
-                          : day.inCurrentMonth
-                            ? "#d8e0ea"
-                            : "#e2e8f0"
-                      const dayBackground = day.isSelected
-                        ? "#dbeafe"
-                        : day.inCurrentMonth || day.isToday
-                          ? "#ffffff"
-                          : "#f8fafc"
-                      const textColor =
-                        day.inCurrentMonth || day.isSelected || day.isToday
-                          ? "#0f172a"
-                          : "#64748b"
-
-                      return (
+                    <div className="grid flex-1 grid-cols-7 gap-1">
+                      {controller.calendarGrid.flat().map((day) => (
                         <button
                           key={`${day.date.toISOString()}-${day.dayNumber}`}
                           type="button"
                           title={day.tooltip}
                           onClick={() => controller.setSelectedDay(day.date)}
-                          className="flex min-h-[58px] cursor-pointer flex-col rounded-xl border p-1.5 text-left"
-                          style={{
-                            borderColor: dayBorder,
-                            background: dayBackground,
-                          }}
+                          className={cn(
+                            "flex min-h-16 cursor-pointer flex-col rounded-md border p-2 text-left transition-colors",
+                            day.inCurrentMonth
+                              ? "bg-card hover:bg-accent"
+                              : "bg-muted/40 text-muted-foreground",
+                            day.isToday && "border-primary/60",
+                            day.isSelected &&
+                              "border-primary bg-primary/10 text-primary hover:bg-primary/10"
+                          )}
                         >
                           <div className="flex items-center gap-1">
-                            <span className="text-[10px] font-semibold" style={{ color: textColor }}>
-                              {day.dayNumber}
-                            </span>
-                            <span className="ml-auto inline-flex size-1.5 rounded-full bg-[#2563eb]" style={{ visibility: day.isToday ? "visible" : "hidden" }} />
+                            <span className="text-xs font-medium">{day.dayNumber}</span>
+                            <span
+                              className={cn(
+                                "ml-auto inline-flex size-1.5 rounded-full",
+                                day.isToday ? "bg-primary" : "bg-transparent"
+                              )}
+                            />
                           </div>
                           <div className="mt-auto flex items-center gap-1">
                             {day.employeeColors.slice(0, 3).map((color, index) => (
@@ -514,161 +495,132 @@ export function WorkshiftApp() {
                               />
                             ))}
                             {day.overflowCount > 0 && (
-                              <span className="rounded-md bg-[#e2e8f0] px-1 text-[10px] text-[#475569]">
+                              <span className="rounded bg-muted px-1 text-[10px] text-muted-foreground">
                                 +{day.overflowCount}
                               </span>
                             )}
                           </div>
                         </button>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </ResizablePanel>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </ResizablePanel>
 
-            <ResizableHandle withHandle className="bg-transparent" />
+              <ResizableHandle withHandle className="bg-transparent" />
 
-            <ResizablePanel defaultSize={22} minSize={16}>
-              <Card className="h-full rounded-2xl border border-[#d9e0ea] bg-white py-0">
-                <CardHeader className="px-3 pt-3 pb-2">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-[15px] font-bold text-[#0f172a]">
-                      Daily shifts
-                    </CardTitle>
-                    <div className="ml-auto">
+              <ResizablePanel defaultSize={22} minSize={16}>
+                <Card className="h-full">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-2">
+                      <CardTitle>Daily shifts</CardTitle>
                       <Button
                         size="sm"
-                        className="h-8 rounded-lg bg-[#2563eb] px-3 text-white hover:bg-[#1d4ed8] disabled:opacity-50"
+                        className="ml-auto"
                         disabled={controller.employeeRows.length === 0}
                         onClick={openAddShiftDialog}
                       >
                         Add shift
                       </Button>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="h-[calc(100%-52px)] px-3 pb-3">
-                  <ScrollArea className="h-full">
-                    <div className="space-y-2 pr-2">
-                      {controller.dailyShiftRows.length === 0 && (
-                        <p className="rounded-xl px-3 py-3 text-center text-[12px] italic text-[#64748b]">
-                          No shifts for this day yet.
-                        </p>
-                      )}
+                  </CardHeader>
+                  <CardContent className="h-[calc(100%-64px)]">
+                    <ScrollArea className="h-full">
+                      <div className="space-y-2 pr-2">
+                        {controller.dailyShiftRows.length === 0 && (
+                          <p className="rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
+                            No shifts for this day yet.
+                          </p>
+                        )}
 
-                      {controller.dailyShiftRows.map((shift) => (
-                        <div
-                          key={shift.id}
-                          className="rounded-xl border border-[#d9e0ea] bg-white px-3 py-2"
-                        >
-                          <div className="flex items-start gap-2">
-                            <span
-                              className="mt-1 inline-flex size-3 shrink-0 rounded-full"
-                              style={{ backgroundColor: shift.colorHex }}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-[12px] font-semibold text-[#0f172a]">
-                                {shift.employeeName}
-                              </p>
-                              <p className="truncate text-[11px] text-[#64748b]">
-                                {formatTimeRange(shift.startTime, shift.endTime)}
+                        {controller.dailyShiftRows.map((shift) => (
+                          <div key={shift.id} className="rounded-lg border bg-card p-3">
+                            <div className="flex items-start gap-2">
+                              <span
+                                className="mt-1 inline-flex size-3 shrink-0 rounded-full"
+                                style={{ backgroundColor: shift.colorHex }}
+                              />
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate font-medium">{shift.employeeName}</p>
+                                <p className="truncate text-xs text-muted-foreground">
+                                  {formatTimeRange(shift.startTime, shift.endTime)}
+                                </p>
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                {formatHours(shift.durationHours)}
                               </p>
                             </div>
-                            <p className="text-[11px] text-[#64748b]">
-                              {formatHours(shift.durationHours)}
-                            </p>
+                            <div className="mt-3 flex justify-end gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openEditShiftDialog(shift.id)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => requestDeleteShift(shift.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
                           </div>
-                          <div className="mt-2 flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-7 rounded-lg border-[#d8e0ea] bg-white px-2.5 text-[11px]"
-                              onClick={() => openEditShiftDialog(shift.id)}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              className="h-7 rounded-lg border border-[#fecdd3] bg-[#fff1f2] px-2.5 text-[11px] text-[#be123c] hover:bg-[#ffe4e6]"
-                              onClick={() => requestDeleteShift(shift.id)}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </ResizablePanel>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </ResizablePanel>
 
-        <ResizableHandle withHandle className="bg-transparent" />
+          <ResizableHandle withHandle className="bg-transparent" />
 
-        <ResizablePanel defaultSize={38} minSize={22}>
-          <Card className="h-full rounded-2xl border border-[#d9e0ea] bg-white py-0">
-            <CardHeader className="px-3 pt-3 pb-2">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-[15px] font-bold text-[#0f172a]">
-                  Employee workload recap
-                </CardTitle>
-                <div className="ml-auto">
-                  <Button
-                    size="sm"
-                    className="h-8 rounded-lg bg-[#2563eb] px-3 text-white hover:bg-[#1d4ed8]"
-                    onClick={() => {
-                      void handleExport()
-                    }}
-                  >
+          <ResizablePanel defaultSize={38} minSize={22}>
+            <Card className="h-full">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <CardTitle>Employee workload recap</CardTitle>
+                  <Button size="sm" className="ml-auto" onClick={() => void handleExport()}>
                     Export .xlsx
                   </Button>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="h-[calc(100%-52px)] px-3 pb-3">
-              <ScrollArea className="h-full">
-                {controller.workloadRows.length === 0 ? (
-                  <p className="rounded-xl px-3 py-3 text-center text-[12px] italic text-[#64748b]">
-                    Add people and shifts to see the workload recap.
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 gap-2 pr-2 md:grid-cols-2 xl:grid-cols-3">
-                    {controller.workloadRows.map((workload) => (
-                      <div
-                        key={workload.id}
-                        className="rounded-xl border border-[#d9e0ea] bg-white px-3 py-2"
-                      >
-                        <div className="mb-1 flex items-center gap-1.5">
-                          <span
-                            className="inline-flex size-2 rounded-full"
-                            style={{ backgroundColor: workload.colorHex }}
-                          />
-                          <p className="truncate text-[12px] font-semibold text-[#0f172a]">
-                            {workload.fullName}
+              </CardHeader>
+              <CardContent className="h-[calc(100%-64px)]">
+                <ScrollArea className="h-full">
+                  {controller.workloadRows.length === 0 ? (
+                    <p className="rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
+                      Add people and shifts to see the workload recap.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-2 pr-2 md:grid-cols-2 xl:grid-cols-3">
+                      {controller.workloadRows.map((workload) => (
+                        <div key={workload.id} className="rounded-lg border bg-card p-3">
+                          <div className="mb-1 flex items-center gap-2">
+                            <span
+                              className="inline-flex size-2 rounded-full"
+                              style={{ backgroundColor: workload.colorHex }}
+                            />
+                            <p className="truncate font-medium">{workload.fullName}</p>
+                          </div>
+                          <p className="mb-2 text-xs text-muted-foreground">
+                            {formatHours(workload.assignedHours)} assigned ·{" "}
+                            {formatHours(workload.targetHours)} target ·{" "}
+                            {formatHours(workload.remainingHours)} remaining
                           </p>
+                          <Progress value={Math.round(workload.progressRatio * 100)} className="gap-0" />
                         </div>
-                        <p className="mb-2 text-[10px] text-[#64748b]">
-                          {formatHours(workload.assignedHours)} assigned ·{" "}
-                          {formatHours(workload.targetHours)} target ·{" "}
-                          {formatHours(workload.remainingHours)} remaining
-                        </p>
-                        <Progress
-                          value={Math.round(workload.progressRatio * 100)}
-                          className="gap-0"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
 
       <Dialog
         open={employeeDialog.open}
@@ -678,129 +630,115 @@ export function WorkshiftApp() {
           }
         }}
       >
-        <DialogContent
-          showCloseButton={false}
-          className="max-w-[500px] rounded-2xl border border-[#d9e0ea] bg-[#eef2f7] p-4"
-        >
-          <div className="rounded-2xl border border-[#d9e0ea] bg-white p-4">
-            <DialogHeader>
-              <DialogTitle className="text-[15px] font-bold text-[#0f172a]">
-                {employeeDialog.open && employeeDialog.mode === "edit"
-                  ? "Edit person"
-                  : "Add person"}
-              </DialogTitle>
-            </DialogHeader>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {employeeDialog.open && employeeDialog.mode === "edit"
+                ? "Edit person"
+                : "Add person"}
+            </DialogTitle>
+          </DialogHeader>
 
-            <div className="mt-4 space-y-3">
-              <div className="space-y-1">
-                <Label htmlFor="employee-first-name">First name</Label>
-                <Input
-                  id="employee-first-name"
-                  value={employeeDraft.firstName}
-                  onChange={(event) => {
-                    setEmployeeDraft((current) => ({
-                      ...current,
-                      firstName: event.target.value,
-                    }))
-                  }}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="employee-last-name">Last name</Label>
-                <Input
-                  id="employee-last-name"
-                  value={employeeDraft.lastName}
-                  onChange={(event) => {
-                    setEmployeeDraft((current) => ({
-                      ...current,
-                      lastName: event.target.value,
-                    }))
-                  }}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="employee-monthly-target">Monthly target</Label>
-                <Input
-                  id="employee-monthly-target"
-                  type="number"
-                  min="0"
-                  step="0.25"
-                  value={employeeDraft.monthlyTargetHours}
-                  onChange={(event) => {
-                    setEmployeeDraft((current) => ({
-                      ...current,
-                      monthlyTargetHours: event.target.value,
-                    }))
-                  }}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="employee-lunch-break">Lunch break</Label>
-                <Input
-                  id="employee-lunch-break"
-                  type="number"
-                  min="0"
-                  step="0.25"
-                  value={employeeDraft.lunchBreakHours}
-                  onChange={(event) => {
-                    setEmployeeDraft((current) => ({
-                      ...current,
-                      lunchBreakHours: event.target.value,
-                    }))
-                  }}
-                />
-                <p className="text-[11px] text-[#64748b]">
-                  Deducted from shifts when lunch is included in the day.
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="employee-color">Color</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="employee-color"
-                    type="color"
-                    value={employeeDraft.colorHex}
-                    className="h-9 w-16 p-1"
-                    onChange={(event) => {
-                      setEmployeeDraft((current) => ({
-                        ...current,
-                        colorHex: event.target.value,
-                      }))
-                    }}
-                  />
-                  <Input
-                    value={employeeDraft.colorHex}
-                    onChange={(event) => {
-                      setEmployeeDraft((current) => ({
-                        ...current,
-                        colorHex: event.target.value,
-                      }))
-                    }}
-                  />
-                </div>
-              </div>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label htmlFor="employee-first-name">First name</Label>
+              <Input
+                id="employee-first-name"
+                value={employeeDraft.firstName}
+                onChange={(event) => {
+                  setEmployeeDraft((current) => ({
+                    ...current,
+                    firstName: event.target.value,
+                  }))
+                }}
+              />
             </div>
 
-            <DialogFooter className="mt-4 -mx-4 -mb-4 rounded-b-2xl border-t border-[#d9e0ea] bg-white/50">
-              <Button
-                variant="outline"
-                className="border-[#d8e0ea] bg-white"
-                onClick={() => setEmployeeDialog({ open: false })}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
-                onClick={submitEmployeeDialog}
-              >
-                Save
-              </Button>
-            </DialogFooter>
+            <div className="space-y-1">
+              <Label htmlFor="employee-last-name">Last name</Label>
+              <Input
+                id="employee-last-name"
+                value={employeeDraft.lastName}
+                onChange={(event) => {
+                  setEmployeeDraft((current) => ({
+                    ...current,
+                    lastName: event.target.value,
+                  }))
+                }}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="employee-monthly-target">Monthly target</Label>
+              <Input
+                id="employee-monthly-target"
+                type="number"
+                min="0"
+                step="0.25"
+                value={employeeDraft.monthlyTargetHours}
+                onChange={(event) => {
+                  setEmployeeDraft((current) => ({
+                    ...current,
+                    monthlyTargetHours: event.target.value,
+                  }))
+                }}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="employee-lunch-break">Lunch break</Label>
+              <Input
+                id="employee-lunch-break"
+                type="number"
+                min="0"
+                step="0.25"
+                value={employeeDraft.lunchBreakHours}
+                onChange={(event) => {
+                  setEmployeeDraft((current) => ({
+                    ...current,
+                    lunchBreakHours: event.target.value,
+                  }))
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Deducted from shifts when lunch is included in the day.
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="employee-color">Color</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="employee-color"
+                  type="color"
+                  value={employeeDraft.colorHex}
+                  className="h-9 w-16 p-1"
+                  onChange={(event) => {
+                    setEmployeeDraft((current) => ({
+                      ...current,
+                      colorHex: event.target.value,
+                    }))
+                  }}
+                />
+                <Input
+                  value={employeeDraft.colorHex}
+                  onChange={(event) => {
+                    setEmployeeDraft((current) => ({
+                      ...current,
+                      colorHex: event.target.value,
+                    }))
+                  }}
+                />
+              </div>
+            </div>
           </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmployeeDialog({ open: false })}>
+              Cancel
+            </Button>
+            <Button onClick={submitEmployeeDialog}>Save</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -812,128 +750,112 @@ export function WorkshiftApp() {
           }
         }}
       >
-        <DialogContent
-          showCloseButton={false}
-          className="max-w-[470px] rounded-2xl border border-[#d9e0ea] bg-[#eef2f7] p-4"
-        >
-          <div className="rounded-2xl border border-[#d9e0ea] bg-white p-4">
-            <DialogHeader>
-              <DialogTitle className="text-[15px] font-bold text-[#0f172a]">
-                {shiftDialog.open && shiftDialog.mode === "edit"
-                  ? "Edit shift"
-                  : "Add shift"}
-              </DialogTitle>
-              <DialogDescription className="text-[11px] text-[#64748b]">
-                Selected day: {selectedDayLabel}
-              </DialogDescription>
-            </DialogHeader>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {shiftDialog.open && shiftDialog.mode === "edit"
+                ? "Edit shift"
+                : "Add shift"}
+            </DialogTitle>
+            <DialogDescription>Selected day: {selectedDayLabel}</DialogDescription>
+          </DialogHeader>
 
-            <div className="mt-4 space-y-3">
-              <div className="space-y-1">
-                <Label>Employee</Label>
-                <Select
-                  value={shiftDraft.employeeId}
-                  onValueChange={(value) => {
-                    setShiftDraft((current) => ({
-                      ...current,
-                      employeeId: value ?? "",
-                    }))
-                  }}
-                >
-                  <SelectTrigger className="h-9 w-full rounded-lg border-[#d8e0ea]">
-                    <SelectValue placeholder="Select employee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {employeeOptions.map((employee) => (
-                      <SelectItem key={employee.id} value={employee.id}>
-                        {employee.firstName} {employee.lastName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="shift-date">Date</Label>
-                <Input
-                  id="shift-date"
-                  type="date"
-                  value={shiftDraft.shiftDate}
-                  onChange={(event) => {
-                    setShiftDraft((current) => ({
-                      ...current,
-                      shiftDate: event.target.value,
-                    }))
-                  }}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="shift-start-time">Start time</Label>
-                <Input
-                  id="shift-start-time"
-                  type="time"
-                  value={shiftDraft.startTime}
-                  onChange={(event) => {
-                    setShiftDraft((current) => ({
-                      ...current,
-                      startTime: event.target.value,
-                    }))
-                  }}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="shift-end-time">End time</Label>
-                <Input
-                  id="shift-end-time"
-                  type="time"
-                  value={shiftDraft.endTime}
-                  onChange={(event) => {
-                    setShiftDraft((current) => ({
-                      ...current,
-                      endTime: event.target.value,
-                    }))
-                  }}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    checked={shiftDraft.includesLunchBreak}
-                    onCheckedChange={(checked) => {
-                      setShiftDraft((current) => ({
-                        ...current,
-                        includesLunchBreak: checked,
-                      }))
-                    }}
-                  />
-                  <Label>Lunch break included</Label>
-                </div>
-                <p className="text-[11px] text-[#64748b]">
-                  Uncheck it for morning or afternoon shifts where lunch happens
-                  outside work.
-                </p>
-              </div>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label>Employee</Label>
+              <Select
+                value={shiftDraft.employeeId}
+                onValueChange={(value) => {
+                  setShiftDraft((current) => ({
+                    ...current,
+                    employeeId: value ?? "",
+                  }))
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employeeOptions.map((employee) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.firstName} {employee.lastName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            <DialogFooter className="mt-4 -mx-4 -mb-4 rounded-b-2xl border-t border-[#d9e0ea] bg-white/50">
-              <Button
-                variant="outline"
-                className="border-[#d8e0ea] bg-white"
-                onClick={() => setShiftDialog({ open: false })}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
-                onClick={submitShiftDialog}
-              >
-                Save
-              </Button>
-            </DialogFooter>
+            <div className="space-y-1">
+              <Label htmlFor="shift-date">Date</Label>
+              <Input
+                id="shift-date"
+                type="date"
+                value={shiftDraft.shiftDate}
+                onChange={(event) => {
+                  setShiftDraft((current) => ({
+                    ...current,
+                    shiftDate: event.target.value,
+                  }))
+                }}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="shift-start-time">Start time</Label>
+              <Input
+                id="shift-start-time"
+                type="time"
+                value={shiftDraft.startTime}
+                onChange={(event) => {
+                  setShiftDraft((current) => ({
+                    ...current,
+                    startTime: event.target.value,
+                  }))
+                }}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="shift-end-time">End time</Label>
+              <Input
+                id="shift-end-time"
+                type="time"
+                value={shiftDraft.endTime}
+                onChange={(event) => {
+                  setShiftDraft((current) => ({
+                    ...current,
+                    endTime: event.target.value,
+                  }))
+                }}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={shiftDraft.includesLunchBreak}
+                  onCheckedChange={(checked) => {
+                    setShiftDraft((current) => ({
+                      ...current,
+                      includesLunchBreak: checked,
+                    }))
+                  }}
+                />
+                <Label>Lunch break included</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Uncheck it for morning or afternoon shifts where lunch happens
+                outside work.
+              </p>
+            </div>
           </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShiftDialog({ open: false })}>
+              Cancel
+            </Button>
+            <Button onClick={submitShiftDialog}>Save</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -945,48 +867,33 @@ export function WorkshiftApp() {
           }
         }}
       >
-        <DialogContent
-          showCloseButton={false}
-          className="max-w-[460px] rounded-2xl border border-[#d9e0ea] bg-[#eef2f7] p-4"
-        >
-          <div className="rounded-2xl border border-[#d9e0ea] bg-white p-4">
-            <DialogHeader>
-              <DialogTitle className="text-[15px] font-bold text-[#0f172a]">
-                {confirmState?.title}
-              </DialogTitle>
-              <DialogDescription className="whitespace-pre-wrap text-[11px] text-[#64748b]">
-                {confirmState?.message}
-              </DialogDescription>
-            </DialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{confirmState?.title}</DialogTitle>
+            <DialogDescription className="whitespace-pre-wrap">
+              {confirmState?.message}
+            </DialogDescription>
+          </DialogHeader>
 
-            <p className="mt-3 rounded-lg border border-[#fecdd3] bg-[#fff1f2] px-2 py-1.5 text-[11px] text-[#be123c]">
-              This action cannot be undone.
-            </p>
+          <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            This action cannot be undone.
+          </p>
 
-            <DialogFooter className="mt-4 -mx-4 -mb-4 rounded-b-2xl border-t border-[#d9e0ea] bg-white/50">
-              <Button
-                variant="outline"
-                className="border-[#d8e0ea] bg-white"
-                onClick={() => setConfirmState(null)}
-              >
-                Cancel
-              </Button>
-              <Button
-                className={
-                  confirmState?.variant === "danger"
-                    ? "border border-[#fecdd3] bg-[#fff1f2] text-[#be123c] hover:bg-[#ffe4e6]"
-                    : "bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
-                }
-                onClick={() => {
-                  const action = confirmState?.action
-                  setConfirmState(null)
-                  action?.()
-                }}
-              >
-                {confirmState?.confirmLabel}
-              </Button>
-            </DialogFooter>
-          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmState(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant={confirmState?.variant === "danger" ? "destructive" : "default"}
+              onClick={() => {
+                const action = confirmState?.action
+                setConfirmState(null)
+                action?.()
+              }}
+            >
+              {confirmState?.confirmLabel}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -998,29 +905,16 @@ export function WorkshiftApp() {
           }
         }}
       >
-        <DialogContent
-          showCloseButton={false}
-          className="max-w-[460px] rounded-2xl border border-[#d9e0ea] bg-[#eef2f7] p-4"
-        >
-          <div className="rounded-2xl border border-[#d9e0ea] bg-white p-4">
-            <DialogHeader>
-              <DialogTitle className="text-[15px] font-bold text-[#0f172a]">
-                {errorState?.title}
-              </DialogTitle>
-              <DialogDescription className="whitespace-pre-wrap text-[11px] text-[#64748b]">
-                {errorState?.message}
-              </DialogDescription>
-            </DialogHeader>
-
-            <DialogFooter className="mt-4 -mx-4 -mb-4 rounded-b-2xl border-t border-[#d9e0ea] bg-white/50">
-              <Button
-                className="bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
-                onClick={() => setErrorState(null)}
-              >
-                Close
-              </Button>
-            </DialogFooter>
-          </div>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{errorState?.title}</DialogTitle>
+            <DialogDescription className="whitespace-pre-wrap">
+              {errorState?.message}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setErrorState(null)}>Close</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -1032,29 +926,16 @@ export function WorkshiftApp() {
           }
         }}
       >
-        <DialogContent
-          showCloseButton={false}
-          className="max-w-[460px] rounded-2xl border border-[#d9e0ea] bg-[#eef2f7] p-4"
-        >
-          <div className="rounded-2xl border border-[#d9e0ea] bg-white p-4">
-            <DialogHeader>
-              <DialogTitle className="text-[15px] font-bold text-[#0f172a]">
-                {infoState?.title}
-              </DialogTitle>
-              <DialogDescription className="whitespace-pre-wrap text-[11px] text-[#64748b]">
-                {infoState?.message}
-              </DialogDescription>
-            </DialogHeader>
-
-            <DialogFooter className="mt-4 -mx-4 -mb-4 rounded-b-2xl border-t border-[#d9e0ea] bg-white/50">
-              <Button
-                className="bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
-                onClick={() => setInfoState(null)}
-              >
-                Close
-              </Button>
-            </DialogFooter>
-          </div>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{infoState?.title}</DialogTitle>
+            <DialogDescription className="whitespace-pre-wrap">
+              {infoState?.message}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setInfoState(null)}>Close</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </main>

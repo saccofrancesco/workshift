@@ -86,6 +86,7 @@ Status: [~] In progress
 - Original behavior is strongly card-based with subtle borders and dense desktop spacing.
 - Calendar day cells have conditional visuals (`selected`, `today`, `outside month`) and color chips (+overflow badge).
 - Dialogs are card-wrapped, with explicit save/cancel/delete semantics and inline helper text.
+- Current phase intentionally uses baseline shadcn visual language (including dark mode) while keeping UX flow and interaction behavior unchanged.
 
 ## 3) Tauri Setup
 Status: [x] Finished
@@ -106,8 +107,9 @@ Status: [x] Finished
 Status: [~] In progress
 - [x] Initialized shadcn (`base-nova`) and component registry.
 - [x] Added component primitives: button, card, dialog, input, label, select, checkbox, progress, scroll-area, resizable.
-- [x] Reworked global theme variables to PyQt palette and typography.
-- [~] Continuing custom variant tuning for exact hover/focus/disabled parity.
+- [x] Reset global theme variables to baseline shadcn tokens (`:root` + `.dark`) for a clean visual starting point.
+- [x] Added app-wide `next-themes` integration (`ThemeProvider`) with runtime light/dark toggle.
+- [~] Custom variant tuning for exact PyQt hover/focus/disabled parity is intentionally deferred until baseline UX validation is complete.
 
 ## 6) Component Migration
 Status: [~] In progress
@@ -148,10 +150,10 @@ Status: [~] In progress
 
 ## 11) Styling Parity
 Status: [~] In progress
-- [x] Ported base color palette, font stack, and card/input/button radii.
-- [x] Ported core panel/dialog layout spacing and density.
-- [x] Ported major stateful visuals (calendar day states, danger buttons, workload cards).
-- [~] Remaining controls (checkbox/input/select nuances, scrollbars, micro-spacing) still need pixel-level adjustment.
+- [x] Ported core structural layout (panels/dialogs/sections) with shadcn primitives while preserving behavior flow.
+- [x] Applied baseline shadcn styling consistently across major screens and dialogs.
+- [x] Enabled both light and dark mode using standard shadcn token sets.
+- [~] PyQt-exact visual parity (palette, typography, spacing micro-details, control states) remains pending after this intentional baseline reset.
 
 ## 12) Testing
 Status: [~] In progress
@@ -159,6 +161,7 @@ Status: [~] In progress
 - [x] Frontend lint passes (`npm run lint`).
 - [x] Rust/Tauri compile check passes (`cargo check` in `src-tauri`).
 - [x] Desktop app bundle build passes (`npm run tauri build -- --debug --bundles app`).
+- [x] Revalidated lint/build/native compile after shadcn baseline + theme-provider transition (2026-05-21).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.
@@ -171,6 +174,7 @@ Status: [~] In progress
   - Deleted `main.py`, `requirements.txt`, `.python-version`.
   - Deleted old PyInstaller CI workflow `.github/workflows/build.yml`.
 - [ ] Remove migration scaffolding and dead code.
+- [x] Adjust ESLint ignore scope for generated/non-project artifacts (`.venv/**`, `src-tauri/target/**`) to keep lint focused on project code.
 - [ ] Final type/lint pass.
 - [ ] Final parity review and residual differences log.
 - [ ] Update README and developer run instructions.
@@ -181,7 +185,7 @@ Status: [~] In progress
   - Data parity and sheet structure are implemented.
   - Advanced formatting from `openpyxl` (merged title rows, detailed cell styles, borders/fills, freeze panes, print setup) is not fully replicated yet.
 - [~] Employee color selection currently uses web color input rather than native color picker dialog.
-- [~] UI is functionally migrated but still needs pixel-level visual matching polish.
+- [~] UI is functionally migrated and now aligned to baseline shadcn look; exact PyQt visual matching is temporarily deferred for the next customization phase.
 - [~] Full DMG installer bundling (`tauri build --bundles dmg`) failed in this environment; app bundle (`.app`) builds successfully.
 
 ## Current Implementation Notes (New in Tauri/React)
@@ -191,8 +195,8 @@ Status: [~] In progress
 - New export: TypeScript `xlsx` generation + Tauri native dialog/fs write.
 - Remaining TODOs:
   - Export style parity pass.
-  - Side-by-side visual QA and spacing adjustments.
+  - Resume PyQt visual parity pass from the current baseline shadcn theme (colors, spacing, typography, states).
   - Targeted tests for migrated business rules.
 
 ## Next Milestone
-- Polish visual parity and export formatting parity, then run manual side-by-side QA and prepare focused commits per section.
+- Validate UX flow against the baseline shadcn dual-mode UI, then begin incremental customization toward PyQt visual parity and export formatting parity.
