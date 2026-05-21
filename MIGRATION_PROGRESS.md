@@ -176,6 +176,7 @@ Status: [~] In progress
 - [x] Applied baseline shadcn styling consistently across major screens and dialogs.
 - [x] Enabled both light and dark mode using standard shadcn token sets.
 - [x] Improved practical text legibility (larger secondary text where needed, stronger muted contrast, clearer selected-state/background separation).
+- [x] Reverted dashboard section wrapper cards to default shadcn card framing (thin border + default shadow) to remove ring/corner artifact and align with baseline style.
 - [~] PyQt-exact visual parity (palette, typography, spacing micro-details, control states) remains pending after this intentional baseline reset.
 
 ## 12) Testing
@@ -194,6 +195,7 @@ Status: [~] In progress
 - [x] Revalidated lint/build after default-shadcn visual reset + dialog UX refactor (2026-05-21).
 - [x] Revalidated lint/build after section-separation contrast tune + simplified Add Shift dialog flow (2026-05-21).
 - [x] Revalidated lint after Add Shift employee-label visualization fix (2026-05-21).
+- [x] Revalidated lint/build after restoring default shadcn card wrappers for the four main sections (2026-05-21).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.
