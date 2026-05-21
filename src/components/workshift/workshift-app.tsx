@@ -5,8 +5,8 @@ import { useMemo, useState } from "react"
 import { save } from "@tauri-apps/plugin-dialog"
 import { writeFile } from "@tauri-apps/plugin-fs"
 import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
 
+import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -137,7 +137,7 @@ function ensureXlsxExtension(path: string): string {
 
 export function WorkshiftApp() {
   const controller = useWorkshift(createDefaultSessionState())
-  const { theme, resolvedTheme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
 
   const [employeeDialog, setEmployeeDialog] =
     useState<EmployeeDialogState>({ open: false })
@@ -163,9 +163,6 @@ export function WorkshiftApp() {
     () => formatFullDateLabel(controller.state.viewState.selectedDay),
     [controller.state.viewState.selectedDay]
   )
-
-  const isDark =
-    theme === "system" ? resolvedTheme === "dark" : theme === "dark"
 
   const executeSafely = (title: string, action: () => void) => {
     try {
@@ -434,10 +431,13 @@ export function WorkshiftApp() {
                       <Button
                         variant="outline"
                         size="icon-sm"
-                        onClick={() => setTheme(isDark ? "light" : "dark")}
+                        onClick={() =>
+                          setTheme(resolvedTheme === "dark" ? "light" : "dark")
+                        }
                         aria-label="Toggle theme"
                       >
-                        {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+                        <Sun className="hidden size-4 dark:block" />
+                        <Moon className="block size-4 dark:hidden" />
                       </Button>
                     </div>
 

@@ -108,9 +108,10 @@ Status: [~] In progress
 - [x] Initialized shadcn (`base-nova`) and component registry.
 - [x] Added component primitives: button, card, dialog, input, label, select, checkbox, progress, scroll-area, resizable.
 - [x] Reset global theme variables to baseline shadcn tokens (`:root` + `.dark`) for a clean visual starting point.
-- [x] Added app-wide `next-themes` integration (`ThemeProvider`) with runtime light/dark toggle.
+- [x] Added app-wide theme-provider integration with runtime light/dark toggle.
 - [x] Increased contrast/readability tokens in both light and dark themes and aligned card/dialog radius behavior.
 - [~] Custom variant tuning for exact PyQt hover/focus/disabled parity is intentionally deferred until baseline UX validation is complete.
+- [x] Replaced `next-themes` with an internal theme provider to eliminate React 19 dev warnings and hydration mismatch around theme icon rendering.
 
 ## 6) Component Migration
 Status: [~] In progress
@@ -167,6 +168,7 @@ Status: [~] In progress
 - [x] Desktop app bundle build passes (`npm run tauri build -- --debug --bundles app`).
 - [x] Revalidated lint/build/native compile after shadcn baseline + theme-provider transition (2026-05-21).
 - [x] Revalidated lint/build/native compile after contrast/radius/resizing updates and top-bar removal (2026-05-21).
+- [x] Revalidated lint/build after theme-provider replacement and hydration-mismatch fix (2026-05-21).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.
@@ -191,6 +193,7 @@ Status: [~] In progress
   - Advanced formatting from `openpyxl` (merged title rows, detailed cell styles, borders/fills, freeze panes, print setup) is not fully replicated yet.
 - [~] Employee color selection currently uses web color input rather than native color picker dialog.
 - [~] UI is functionally migrated and now aligned to baseline shadcn look; exact PyQt visual matching is temporarily deferred for the next customization phase.
+- [x] Theme-toggle hydration mismatch fixed by removing server/client divergent icon rendering.
 - [~] Full DMG installer bundling (`tauri build --bundles dmg`) failed in this environment; app bundle (`.app`) builds successfully.
 
 ## Current Implementation Notes (New in Tauri/React)
