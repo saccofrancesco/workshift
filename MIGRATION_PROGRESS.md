@@ -102,6 +102,7 @@ Status: [x] Finished
 - [x] Configured static export (`output: "export"`) for Tauri packaging.
 - [x] Added Tauri CLI npm script and dependencies.
 - [x] Replaced starter page with Workshift app entry component.
+- [x] Pinned project Node runtime with `.nvmrc` to the local macOS-installed `v24.14.0` to avoid Node 26 deprecation-noise in dev/build output.
 
 ## 5) shadcn Customization
 Status: [~] In progress
@@ -175,6 +176,7 @@ Status: [~] In progress
 - [x] Revalidated lint/build after panel-size unit fix for resizable layout (2026-05-21).
 - [x] Revalidated lint/build after calendar scrollability fix under constrained vertical space (2026-05-21).
 - [x] Revalidated lint/build after responsive non-scrolling calendar grid + chip-only resizer handles update (2026-05-21).
+- [x] Revalidated lint/build using pinned Node `v24.14.0` runtime (2026-05-21).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.
