@@ -111,6 +111,8 @@ Status: [~] In progress
 - [x] Reset global theme variables to baseline shadcn tokens (`:root` + `.dark`) for a clean visual starting point.
 - [x] Added app-wide theme-provider integration with runtime light/dark toggle.
 - [x] Increased contrast/readability tokens in both light and dark themes and aligned card/dialog radius behavior.
+- [x] Reverted color/radius token overrides back to stock shadcn default tokens for both light and dark mode.
+- [x] Re-aligned core card/dialog primitives to default shadcn-style visual structure.
 - [~] Custom variant tuning for exact PyQt hover/focus/disabled parity is intentionally deferred until baseline UX validation is complete.
 - [x] Replaced `next-themes` with an internal theme provider to eliminate React 19 dev warnings and hydration mismatch around theme icon rendering.
 
@@ -127,6 +129,11 @@ Status: [~] In progress
 - [x] Fixed panel sizing regression caused by `react-resizable-panels` v4 unit semantics (numeric sizes interpreted as pixels); migrated panel sizing constraints to percentage strings.
 - [x] Fixed calendar clipping when the bottom recap panel is expanded by making the day-grid area internally scrollable.
 - [x] Reworked calendar grid to be fully responsive inside its panel (6 fixed rows that shrink with available height) to avoid inner scrolling and keep all days visible.
+- [x] Tightened inter-panel spacing around resizers for more proportional section separation.
+- [x] Improved employee and shift dialogs for faster input:
+  - Lunch-break duration now has quick select options.
+  - Shift start/end time now use structured time selects + quick presets.
+  - Employee color selection now includes fast swatch buttons plus manual picker/input.
 - [~] Fine-grain visual parity polish and interaction micro-details remaining.
 
 ## 7) State Management
@@ -177,6 +184,7 @@ Status: [~] In progress
 - [x] Revalidated lint/build after calendar scrollability fix under constrained vertical space (2026-05-21).
 - [x] Revalidated lint/build after responsive non-scrolling calendar grid + chip-only resizer handles update (2026-05-21).
 - [x] Revalidated lint/build using pinned Node `v24.14.0` runtime (2026-05-21).
+- [x] Revalidated lint/build after default-shadcn visual reset + dialog UX refactor (2026-05-21).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.
@@ -199,7 +207,7 @@ Status: [~] In progress
 - [~] Export workbook style parity is currently partial:
   - Data parity and sheet structure are implemented.
   - Advanced formatting from `openpyxl` (merged title rows, detailed cell styles, borders/fills, freeze panes, print setup) is not fully replicated yet.
-- [~] Employee color selection currently uses web color input rather than native color picker dialog.
+- [~] Employee color selection improved with swatch shortcuts but still uses web color input (no native desktop color-picker dialog yet).
 - [~] UI is functionally migrated and now aligned to baseline shadcn look; exact PyQt visual matching is temporarily deferred for the next customization phase.
 - [x] Theme-toggle hydration mismatch fixed by removing server/client divergent icon rendering.
 - [~] Full DMG installer bundling (`tauri build --bundles dmg`) failed in this environment; app bundle (`.app`) builds successfully.

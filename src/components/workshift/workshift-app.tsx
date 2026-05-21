@@ -102,6 +102,42 @@ const DEFAULT_EMPLOYEE_DRAFT: EmployeeDraft = {
   colorHex: "#2563eb",
 }
 
+const COLOR_SWATCHES = [
+  "#2563eb",
+  "#0ea5e9",
+  "#14b8a6",
+  "#22c55e",
+  "#eab308",
+  "#f97316",
+  "#ef4444",
+  "#ec4899",
+  "#8b5cf6",
+  "#64748b",
+] as const
+
+const LUNCH_BREAK_OPTIONS = [
+  "0",
+  "0.25",
+  "0.5",
+  "0.75",
+  "1",
+  "1.25",
+  "1.5",
+  "2",
+] as const
+
+const SHIFT_PRESETS = [
+  { label: "Morning", start: "08:00", end: "16:00" },
+  { label: "Office", start: "09:00", end: "18:00" },
+  { label: "Evening", start: "14:00", end: "22:00" },
+] as const
+
+const SHIFT_TIME_OPTIONS = Array.from({ length: 48 }, (_, index) => {
+  const hour = Math.floor(index / 2)
+  const minute = index % 2 === 0 ? "00" : "30"
+  return `${hour.toString().padStart(2, "0")}:${minute}`
+})
+
 function employeeToDraft(employee: Employee): EmployeeDraft {
   return {
     firstName: employee.firstName,
@@ -163,6 +199,16 @@ export function WorkshiftApp() {
     () => formatFullDateLabel(controller.state.viewState.selectedDay),
     [controller.state.viewState.selectedDay]
   )
+  const lunchBreakSelectOptions = useMemo(() => {
+    const currentValue = employeeDraft.lunchBreakHours.trim()
+    if (!currentValue) {
+      return [...LUNCH_BREAK_OPTIONS]
+    }
+    if (LUNCH_BREAK_OPTIONS.includes(currentValue as (typeof LUNCH_BREAK_OPTIONS)[number])) {
+      return [...LUNCH_BREAK_OPTIONS]
+    }
+    return [currentValue, ...LUNCH_BREAK_OPTIONS]
+  }, [employeeDraft.lunchBreakHours])
 
   const executeSafely = (title: string, action: () => void) => {
     try {
@@ -252,6 +298,14 @@ export function WorkshiftApp() {
       includesLunchBreak: true,
     })
     setShiftDialog({ open: true, mode: "add" })
+  }
+
+  const applyShiftPreset = (start: string, end: string) => {
+    setShiftDraft((current) => ({
+      ...current,
+      startTime: start,
+      endTime: end,
+    }))
   }
 
   const openEditShiftDialog = (shiftId: string) => {
@@ -344,11 +398,11 @@ export function WorkshiftApp() {
   }
 
   return (
-    <main className="min-h-screen overflow-auto bg-background p-3">
-      <div className="mx-auto flex h-[calc(100vh-1.5rem)] min-h-[780px] min-w-[1320px] max-w-[1800px] flex-col">
-        <ResizablePanelGroup orientation="vertical" className="flex-1 gap-2">
+    <main className="min-h-screen overflow-auto bg-background p-1">
+      <div className="mx-auto flex h-[calc(100vh-0.5rem)] min-h-[780px] min-w-[1320px] max-w-[1800px] flex-col">
+        <ResizablePanelGroup orientation="vertical" className="flex-1 gap-1">
           <ResizablePanel defaultSize="66%" minSize="56%" maxSize="78%">
-            <ResizablePanelGroup orientation="horizontal" className="gap-2">
+            <ResizablePanelGroup orientation="horizontal" className="gap-1">
               <ResizablePanel defaultSize="22%" minSize="18%" maxSize="30%">
                 <Card className="h-full">
                   <CardHeader className="pb-2">
@@ -624,89 +678,121 @@ export function WorkshiftApp() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>
               {employeeDialog.open && employeeDialog.mode === "edit"
                 ? "Edit person"
                 : "Add person"}
             </DialogTitle>
+            <DialogDescription>
+              Fill employee details and default shift settings.
+            </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="employee-first-name">First name</Label>
-              <Input
-                id="employee-first-name"
-                value={employeeDraft.firstName}
-                onChange={(event) => {
-                  setEmployeeDraft((current) => ({
-                    ...current,
-                    firstName: event.target.value,
-                  }))
-                }}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="employee-last-name">Last name</Label>
-              <Input
-                id="employee-last-name"
-                value={employeeDraft.lastName}
-                onChange={(event) => {
-                  setEmployeeDraft((current) => ({
-                    ...current,
-                    lastName: event.target.value,
-                  }))
-                }}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="employee-monthly-target">Monthly target</Label>
-              <Input
-                id="employee-monthly-target"
-                type="number"
-                min="0"
-                step="0.25"
-                value={employeeDraft.monthlyTargetHours}
-                onChange={(event) => {
-                  setEmployeeDraft((current) => ({
-                    ...current,
-                    monthlyTargetHours: event.target.value,
-                  }))
-                }}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="employee-lunch-break">Lunch break</Label>
-              <Input
-                id="employee-lunch-break"
-                type="number"
-                min="0"
-                step="0.25"
-                value={employeeDraft.lunchBreakHours}
-                onChange={(event) => {
-                  setEmployeeDraft((current) => ({
-                    ...current,
-                    lunchBreakHours: event.target.value,
-                  }))
-                }}
-              />
-              <p className="text-sm text-muted-foreground">
-                Deducted from shifts when lunch is included in the day.
-              </p>
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="employee-color">Color</Label>
-              <div className="flex items-center gap-2">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="employee-first-name">First name</Label>
                 <Input
-                  id="employee-color"
+                  id="employee-first-name"
+                  value={employeeDraft.firstName}
+                  onChange={(event) => {
+                    setEmployeeDraft((current) => ({
+                      ...current,
+                      firstName: event.target.value,
+                    }))
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="employee-last-name">Last name</Label>
+                <Input
+                  id="employee-last-name"
+                  value={employeeDraft.lastName}
+                  onChange={(event) => {
+                    setEmployeeDraft((current) => ({
+                      ...current,
+                      lastName: event.target.value,
+                    }))
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="employee-monthly-target">Monthly target</Label>
+                <Input
+                  id="employee-monthly-target"
+                  type="number"
+                  min="0"
+                  step="0.25"
+                  value={employeeDraft.monthlyTargetHours}
+                  onChange={(event) => {
+                    setEmployeeDraft((current) => ({
+                      ...current,
+                      monthlyTargetHours: event.target.value,
+                    }))
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="employee-lunch-break">Lunch break (hours)</Label>
+                <Select
+                  value={employeeDraft.lunchBreakHours}
+                  onValueChange={(value) => {
+                    setEmployeeDraft((current) => ({
+                      ...current,
+                      lunchBreakHours: value ?? "0",
+                    }))
+                  }}
+                >
+                  <SelectTrigger id="employee-lunch-break" className="w-full">
+                    <SelectValue placeholder="Select duration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {lunchBreakSelectOptions.map((value) => (
+                      <SelectItem key={value} value={value}>
+                        {value} h
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="employee-color-hex">Color</Label>
+              <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+                {COLOR_SWATCHES.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    aria-label={`Set color ${color}`}
+                    className={cn(
+                      "h-8 rounded-md border transition-colors",
+                      employeeDraft.colorHex.toLowerCase() === color
+                        ? "ring-2 ring-ring"
+                        : "hover:border-foreground/40"
+                    )}
+                    style={{ backgroundColor: color }}
+                    onClick={() => {
+                      setEmployeeDraft((current) => ({
+                        ...current,
+                        colorHex: color,
+                      }))
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="grid grid-cols-[auto_1fr] items-center gap-2">
+                <Input
                   type="color"
                   value={employeeDraft.colorHex}
-                  className="h-9 w-16 p-1"
+                  className="h-9 w-14 p-1"
                   onChange={(event) => {
                     setEmployeeDraft((current) => ({
                       ...current,
@@ -715,6 +801,7 @@ export function WorkshiftApp() {
                   }}
                 />
                 <Input
+                  id="employee-color-hex"
                   value={employeeDraft.colorHex}
                   onChange={(event) => {
                     setEmployeeDraft((current) => ({
@@ -725,6 +812,10 @@ export function WorkshiftApp() {
                 />
               </div>
             </div>
+
+            <p className="text-sm text-muted-foreground">
+              Lunch break is deducted from shifts when enabled.
+            </p>
           </div>
 
           <DialogFooter>
@@ -744,7 +835,7 @@ export function WorkshiftApp() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>
               {shiftDialog.open && shiftDialog.mode === "edit"
@@ -754,8 +845,8 @@ export function WorkshiftApp() {
             <DialogDescription>Selected day: {selectedDayLabel}</DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3">
-            <div className="space-y-1">
+          <div className="space-y-4">
+            <div className="space-y-2">
               <Label>Employee</Label>
               <Select
                 value={shiftDraft.employeeId}
@@ -779,7 +870,7 @@ export function WorkshiftApp() {
               </Select>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label htmlFor="shift-date">Date</Label>
               <Input
                 id="shift-date"
@@ -794,37 +885,74 @@ export function WorkshiftApp() {
               />
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="shift-start-time">Start time</Label>
-              <Input
-                id="shift-start-time"
-                type="time"
-                value={shiftDraft.startTime}
-                onChange={(event) => {
-                  setShiftDraft((current) => ({
-                    ...current,
-                    startTime: event.target.value,
-                  }))
-                }}
-              />
+            <div className="space-y-2">
+              <Label>Quick presets</Label>
+              <div className="flex flex-wrap gap-2">
+                {SHIFT_PRESETS.map((preset) => (
+                  <Button
+                    key={preset.label}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => applyShiftPreset(preset.start, preset.end)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="shift-end-time">End time</Label>
-              <Input
-                id="shift-end-time"
-                type="time"
-                value={shiftDraft.endTime}
-                onChange={(event) => {
-                  setShiftDraft((current) => ({
-                    ...current,
-                    endTime: event.target.value,
-                  }))
-                }}
-              />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Start time</Label>
+                <Select
+                  value={shiftDraft.startTime}
+                  onValueChange={(value) => {
+                    setShiftDraft((current) => ({
+                      ...current,
+                      startTime: value ?? current.startTime,
+                    }))
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SHIFT_TIME_OPTIONS.map((time) => (
+                      <SelectItem key={`start-${time}`} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>End time</Label>
+                <Select
+                  value={shiftDraft.endTime}
+                  onValueChange={(value) => {
+                    setShiftDraft((current) => ({
+                      ...current,
+                      endTime: value ?? current.endTime,
+                    }))
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SHIFT_TIME_OPTIONS.map((time) => (
+                      <SelectItem key={`end-${time}`} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="rounded-md border p-3">
               <div className="flex items-center gap-2">
                 <Checkbox
                   checked={shiftDraft.includesLunchBreak}
@@ -837,9 +965,8 @@ export function WorkshiftApp() {
                 />
                 <Label>Lunch break included</Label>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Uncheck it for morning or afternoon shifts where lunch happens
-                outside work.
+              <p className="mt-2 text-sm text-muted-foreground">
+                Uncheck it for shifts where lunch happens outside working time.
               </p>
             </div>
           </div>
