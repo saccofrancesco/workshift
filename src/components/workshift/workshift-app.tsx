@@ -126,12 +126,6 @@ const LUNCH_BREAK_OPTIONS = [
   "2",
 ] as const
 
-const SHIFT_PRESETS = [
-  { label: "Morning", start: "08:00", end: "16:00" },
-  { label: "Office", start: "09:00", end: "18:00" },
-  { label: "Evening", start: "14:00", end: "22:00" },
-] as const
-
 const SHIFT_TIME_OPTIONS = Array.from({ length: 48 }, (_, index) => {
   const hour = Math.floor(index / 2)
   const minute = index % 2 === 0 ? "00" : "30"
@@ -291,21 +285,13 @@ export function WorkshiftApp() {
     }
 
     setShiftDraft({
-      employeeId: employeeOptions[0]?.id ?? "",
+      employeeId: "",
       shiftDate: toDateInputValue(controller.state.viewState.selectedDay),
       startTime: "09:00",
       endTime: "18:00",
       includesLunchBreak: true,
     })
     setShiftDialog({ open: true, mode: "add" })
-  }
-
-  const applyShiftPreset = (start: string, end: string) => {
-    setShiftDraft((current) => ({
-      ...current,
-      startTime: start,
-      endTime: end,
-    }))
   }
 
   const openEditShiftDialog = (shiftId: string) => {
@@ -317,6 +303,14 @@ export function WorkshiftApp() {
   }
 
   const submitShiftDialog = () => {
+    if (!shiftDraft.employeeId.trim()) {
+      setErrorState({
+        title: "Cannot add shift",
+        message: "Select an employee.",
+      })
+      return
+    }
+
     const values: ShiftFormValues = {
       employeeId: shiftDraft.employeeId,
       shiftDate: parseDateInputValue(shiftDraft.shiftDate),
@@ -398,7 +392,7 @@ export function WorkshiftApp() {
   }
 
   return (
-    <main className="min-h-screen overflow-auto bg-background p-1">
+    <main className="min-h-screen overflow-auto bg-muted/25 p-1">
       <div className="mx-auto flex h-[calc(100vh-0.5rem)] min-h-[780px] min-w-[1320px] max-w-[1800px] flex-col">
         <ResizablePanelGroup orientation="vertical" className="flex-1 gap-1">
           <ResizablePanel defaultSize="66%" minSize="56%" maxSize="78%">
@@ -858,7 +852,7 @@ export function WorkshiftApp() {
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select employee" />
+                  <SelectValue placeholder="Select an employee" />
                 </SelectTrigger>
                 <SelectContent>
                   {employeeOptions.map((employee) => (
@@ -868,38 +862,6 @@ export function WorkshiftApp() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="shift-date">Date</Label>
-              <Input
-                id="shift-date"
-                type="date"
-                value={shiftDraft.shiftDate}
-                onChange={(event) => {
-                  setShiftDraft((current) => ({
-                    ...current,
-                    shiftDate: event.target.value,
-                  }))
-                }}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Quick presets</Label>
-              <div className="flex flex-wrap gap-2">
-                {SHIFT_PRESETS.map((preset) => (
-                  <Button
-                    key={preset.label}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => applyShiftPreset(preset.start, preset.end)}
-                  >
-                    {preset.label}
-                  </Button>
-                ))}
-              </div>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
