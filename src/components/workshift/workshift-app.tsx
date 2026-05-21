@@ -347,9 +347,9 @@ export function WorkshiftApp() {
     <main className="min-h-screen overflow-auto bg-background p-3">
       <div className="mx-auto flex h-[calc(100vh-1.5rem)] min-h-[780px] min-w-[1320px] max-w-[1800px] flex-col">
         <ResizablePanelGroup orientation="vertical" className="flex-1 gap-2">
-          <ResizablePanel defaultSize={66} minSize={56} maxSize={78}>
+          <ResizablePanel defaultSize="66%" minSize="56%" maxSize="78%">
             <ResizablePanelGroup orientation="horizontal" className="gap-2">
-              <ResizablePanel defaultSize={22} minSize={18} maxSize={30}>
+              <ResizablePanel defaultSize="22%" minSize="18%" maxSize="30%">
                 <Card className="h-full">
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-2">
@@ -409,7 +409,7 @@ export function WorkshiftApp() {
 
               <ResizableHandle withHandle className="bg-border/65" />
 
-              <ResizablePanel defaultSize={56} minSize={40}>
+              <ResizablePanel defaultSize="56%" minSize="40%">
                 <Card className="h-full">
                   <CardHeader className="pb-2">
                     <CardTitle>Monthly calendar</CardTitle>
@@ -501,7 +501,7 @@ export function WorkshiftApp() {
 
               <ResizableHandle withHandle className="bg-border/65" />
 
-              <ResizablePanel defaultSize={22} minSize={18} maxSize={30}>
+              <ResizablePanel defaultSize="22%" minSize="18%" maxSize="30%">
                 <Card className="h-full">
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-2">
@@ -570,7 +570,7 @@ export function WorkshiftApp() {
 
           <ResizableHandle withHandle className="bg-border/65" />
 
-          <ResizablePanel defaultSize={34} minSize={22} maxSize={44}>
+          <ResizablePanel defaultSize="34%" minSize="22%" maxSize="44%">
             <Card className="h-full">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
