@@ -406,7 +406,7 @@ export function WorkshiftApp() {
           <ResizablePanel defaultSize="66%" minSize="56%" maxSize="78%">
             <ResizablePanelGroup orientation="horizontal" className="gap-1">
               <ResizablePanel defaultSize="22%" minSize="18%" maxSize="30%">
-                <Card className="h-full">
+                <Card className="flex h-full flex-col shadow-none">
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-2">
                       <CardTitle>Employees</CardTitle>
@@ -466,7 +466,7 @@ export function WorkshiftApp() {
               <ResizableHandle withHandle />
 
               <ResizablePanel defaultSize="56%" minSize="40%">
-                <Card className="h-full">
+                <Card className="flex h-full flex-col shadow-none">
                   <CardHeader className="pb-2">
                     <CardTitle>Monthly calendar</CardTitle>
                   </CardHeader>
@@ -560,7 +560,7 @@ export function WorkshiftApp() {
               <ResizableHandle withHandle />
 
               <ResizablePanel defaultSize="22%" minSize="18%" maxSize="30%">
-                <Card className="h-full">
+                <Card className="flex h-full flex-col shadow-none">
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-2">
                       <CardTitle>Daily shifts</CardTitle>
@@ -629,7 +629,7 @@ export function WorkshiftApp() {
           <ResizableHandle withHandle />
 
           <ResizablePanel defaultSize="34%" minSize="22%" maxSize="44%">
-            <Card className="h-full">
+            <Card className="flex h-full flex-col shadow-none">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <CardTitle>Employee workload recap</CardTitle>
