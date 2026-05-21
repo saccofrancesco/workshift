@@ -89,7 +89,7 @@ Status: [~] In progress
 
 ## 3) Tauri Setup
 Status: [x] Finished
-- [x] Initialized Tauri scaffold in `frontend/src-tauri`.
+- [x] Initialized Tauri scaffold in `src-tauri` (originally created under `frontend/src-tauri` and later moved to root).
 - [x] Configured desktop window to PyQt baseline (`1500x960`, min `1280x700`).
 - [x] Set static frontend dist (`../out`) and dev/build hooks in `tauri.conf.json`.
 - [x] Added Rust plugins for dialog and filesystem (`tauri-plugin-dialog`, `tauri-plugin-fs`).
@@ -97,7 +97,7 @@ Status: [x] Finished
 
 ## 4) Next.js Setup
 Status: [x] Finished
-- [x] Created Next.js TypeScript app in `frontend/`.
+- [x] Created Next.js TypeScript app (originally in `frontend/`, then relocated to repository root).
 - [x] Configured static export (`output: "export"`) for Tauri packaging.
 - [x] Added Tauri CLI npm script and dependencies.
 - [x] Replaced starter page with Workshift app entry component.
@@ -157,7 +157,7 @@ Status: [~] In progress
 Status: [~] In progress
 - [x] Frontend static build passes (`npm run build`).
 - [x] Frontend lint passes (`npm run lint`).
-- [x] Rust/Tauri compile check passes (`cargo check` in `frontend/src-tauri`).
+- [x] Rust/Tauri compile check passes (`cargo check` in `src-tauri`).
 - [x] Desktop app bundle build passes (`npm run tauri build -- --debug --bundles app`).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
@@ -165,6 +165,7 @@ Status: [~] In progress
 
 ## 13) Final Cleanup
 Status: [~] In progress
+- [x] Relocate migrated app from `frontend/` to repository root (`workshift/`) and remove old nested folder.
 - [x] Remove legacy PyQt6 runtime/build files from repository:
   - Deleted `src/` legacy PyQt6 codebase.
   - Deleted `main.py`, `requirements.txt`, `.python-version`.
