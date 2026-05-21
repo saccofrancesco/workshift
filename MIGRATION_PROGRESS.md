@@ -91,7 +91,7 @@ Status: [~] In progress
 ## 3) Tauri Setup
 Status: [x] Finished
 - [x] Initialized Tauri scaffold in `src-tauri` (originally created under `frontend/src-tauri` and later moved to root).
-- [x] Configured desktop window to PyQt baseline (`1500x960`, min `1280x700`).
+- [x] Configured desktop window to PyQt baseline (`1500x960`) with stronger usable minimum (`1360x780`) to prevent cramped layouts.
 - [x] Set static frontend dist (`../out`) and dev/build hooks in `tauri.conf.json`.
 - [x] Added Rust plugins for dialog and filesystem (`tauri-plugin-dialog`, `tauri-plugin-fs`).
 - [x] Updated Tauri capability permissions (`dialog:default`, `fs:default`).
@@ -109,6 +109,7 @@ Status: [~] In progress
 - [x] Added component primitives: button, card, dialog, input, label, select, checkbox, progress, scroll-area, resizable.
 - [x] Reset global theme variables to baseline shadcn tokens (`:root` + `.dark`) for a clean visual starting point.
 - [x] Added app-wide `next-themes` integration (`ThemeProvider`) with runtime light/dark toggle.
+- [x] Increased contrast/readability tokens in both light and dark themes and aligned card/dialog radius behavior.
 - [~] Custom variant tuning for exact PyQt hover/focus/disabled parity is intentionally deferred until baseline UX validation is complete.
 
 ## 6) Component Migration
@@ -119,6 +120,8 @@ Status: [~] In progress
 - [x] Migrated daily shift panel + CRUD dialogs.
 - [x] Migrated workload recap panel + progress cards.
 - [x] Migrated confirm/error/info dialog flows.
+- [x] Removed top application title bar to recover dashboard space and moved theme toggle into in-panel controls.
+- [x] Added stricter resizable panel constraints (min/max sizes) to avoid unusable narrow sections.
 - [~] Fine-grain visual parity polish and interaction micro-details remaining.
 
 ## 7) State Management
@@ -153,6 +156,7 @@ Status: [~] In progress
 - [x] Ported core structural layout (panels/dialogs/sections) with shadcn primitives while preserving behavior flow.
 - [x] Applied baseline shadcn styling consistently across major screens and dialogs.
 - [x] Enabled both light and dark mode using standard shadcn token sets.
+- [x] Improved practical text legibility (larger secondary text where needed, stronger muted contrast, clearer selected-state/background separation).
 - [~] PyQt-exact visual parity (palette, typography, spacing micro-details, control states) remains pending after this intentional baseline reset.
 
 ## 12) Testing
@@ -162,6 +166,7 @@ Status: [~] In progress
 - [x] Rust/Tauri compile check passes (`cargo check` in `src-tauri`).
 - [x] Desktop app bundle build passes (`npm run tauri build -- --debug --bundles app`).
 - [x] Revalidated lint/build/native compile after shadcn baseline + theme-provider transition (2026-05-21).
+- [x] Revalidated lint/build/native compile after contrast/radius/resizing updates and top-bar removal (2026-05-21).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.

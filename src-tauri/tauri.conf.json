@@ -15,8 +15,8 @@
         "title": "Workshift",
         "width": 1500,
         "height": 960,
-        "minWidth": 1280,
-        "minHeight": 700,
+        "minWidth": 1360,
+        "minHeight": 780,
         "resizable": true,
         "fullscreen": false
       }

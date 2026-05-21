@@ -347,28 +347,12 @@ export function WorkshiftApp() {
   }
 
   return (
-    <main className="min-h-screen bg-muted/30 p-4">
-      <div className="mx-auto flex h-[calc(100vh-2rem)] min-h-[700px] max-w-[1800px] flex-col gap-3">
-        <header className="flex items-center gap-2">
-          <div>
-            <h1 className="text-lg font-semibold">Workshift</h1>
-            <p className="text-xs text-muted-foreground">{controller.monthLabel}</p>
-          </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="ml-auto"
-            onClick={() => setTheme(isDark ? "light" : "dark")}
-            aria-label="Toggle theme"
-          >
-            {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-          </Button>
-        </header>
-
+    <main className="min-h-screen overflow-auto bg-background p-3">
+      <div className="mx-auto flex h-[calc(100vh-1.5rem)] min-h-[780px] min-w-[1320px] max-w-[1800px] flex-col">
         <ResizablePanelGroup orientation="vertical" className="flex-1 gap-2">
-          <ResizablePanel defaultSize={62} minSize={40}>
+          <ResizablePanel defaultSize={66} minSize={56} maxSize={78}>
             <ResizablePanelGroup orientation="horizontal" className="gap-2">
-              <ResizablePanel defaultSize={22} minSize={16}>
+              <ResizablePanel defaultSize={22} minSize={18} maxSize={30}>
                 <Card className="h-full">
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-2">
@@ -378,7 +362,7 @@ export function WorkshiftApp() {
                       </Button>
                     </div>
                   </CardHeader>
-                  <CardContent className="h-[calc(100%-64px)]">
+                  <CardContent className="min-h-0 flex-1">
                     <ScrollArea className="h-full">
                       <div className="space-y-2 pr-2">
                         {controller.employeeRows.length === 0 && (
@@ -396,7 +380,7 @@ export function WorkshiftApp() {
                               />
                               <div className="min-w-0 flex-1">
                                 <p className="truncate font-medium">{employee.fullName}</p>
-                                <p className="truncate text-xs text-muted-foreground">
+                                <p className="truncate text-sm text-muted-foreground">
                                   {formatHours(employee.monthlyTargetHours)} / month ·{" "}
                                   {formatHours(employee.lunchBreakHours)} lunch break
                                 </p>
@@ -426,19 +410,19 @@ export function WorkshiftApp() {
                 </Card>
               </ResizablePanel>
 
-              <ResizableHandle withHandle className="bg-transparent" />
+              <ResizableHandle withHandle className="bg-border/65" />
 
-              <ResizablePanel defaultSize={56} minSize={34}>
+              <ResizablePanel defaultSize={56} minSize={40}>
                 <Card className="h-full">
                   <CardHeader className="pb-2">
                     <CardTitle>Monthly calendar</CardTitle>
                   </CardHeader>
-                  <CardContent className="flex h-[calc(100%-64px)] flex-col gap-2">
+                  <CardContent className="flex min-h-0 flex-1 flex-col gap-3">
                     <div className="flex items-center gap-1.5">
                       <Button size="sm" variant="outline" onClick={() => controller.moveMonth(-1)}>
                         Prev
                       </Button>
-                      <div className="flex-1 text-center text-xs text-muted-foreground">
+                      <div className="flex-1 text-center text-sm font-medium">
                         {controller.monthLabel}
                       </div>
                       <Button size="sm" variant="outline" onClick={() => controller.goToday()}>
@@ -447,13 +431,21 @@ export function WorkshiftApp() {
                       <Button size="sm" variant="outline" onClick={() => controller.moveMonth(1)}>
                         Next
                       </Button>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        onClick={() => setTheme(isDark ? "light" : "dark")}
+                        aria-label="Toggle theme"
+                      >
+                        {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+                      </Button>
                     </div>
 
                     <div className="grid grid-cols-7 gap-1">
                       {Array.from({ length: 7 }).map((_, weekdayIndex) => (
                         <div
                           key={weekdayIndex}
-                          className="text-center text-xs text-muted-foreground"
+                          className="text-center text-sm font-medium text-muted-foreground"
                         >
                           {weekdayAbbrev(weekdayIndex)}
                         </div>
@@ -468,17 +460,17 @@ export function WorkshiftApp() {
                           title={day.tooltip}
                           onClick={() => controller.setSelectedDay(day.date)}
                           className={cn(
-                            "flex min-h-16 cursor-pointer flex-col rounded-md border p-2 text-left transition-colors",
+                            "flex min-h-16 cursor-pointer flex-col rounded-xl border p-2 text-left transition-colors",
                             day.inCurrentMonth
-                              ? "bg-card hover:bg-accent"
-                              : "bg-muted/40 text-muted-foreground",
+                              ? "bg-card hover:bg-accent/70"
+                              : "bg-muted/45 text-muted-foreground",
                             day.isToday && "border-primary/60",
                             day.isSelected &&
-                              "border-primary bg-primary/10 text-primary hover:bg-primary/10"
+                              "border-primary bg-primary/15 text-foreground hover:bg-primary/20"
                           )}
                         >
                           <div className="flex items-center gap-1">
-                            <span className="text-xs font-medium">{day.dayNumber}</span>
+                            <span className="text-sm font-semibold">{day.dayNumber}</span>
                             <span
                               className={cn(
                                 "ml-auto inline-flex size-1.5 rounded-full",
@@ -495,7 +487,7 @@ export function WorkshiftApp() {
                               />
                             ))}
                             {day.overflowCount > 0 && (
-                              <span className="rounded bg-muted px-1 text-[10px] text-muted-foreground">
+                              <span className="rounded bg-muted px-1 text-xs font-medium text-muted-foreground">
                                 +{day.overflowCount}
                               </span>
                             )}
@@ -507,9 +499,9 @@ export function WorkshiftApp() {
                 </Card>
               </ResizablePanel>
 
-              <ResizableHandle withHandle className="bg-transparent" />
+              <ResizableHandle withHandle className="bg-border/65" />
 
-              <ResizablePanel defaultSize={22} minSize={16}>
+              <ResizablePanel defaultSize={22} minSize={18} maxSize={30}>
                 <Card className="h-full">
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-2">
@@ -524,7 +516,7 @@ export function WorkshiftApp() {
                       </Button>
                     </div>
                   </CardHeader>
-                  <CardContent className="h-[calc(100%-64px)]">
+                  <CardContent className="min-h-0 flex-1">
                     <ScrollArea className="h-full">
                       <div className="space-y-2 pr-2">
                         {controller.dailyShiftRows.length === 0 && (
@@ -542,11 +534,11 @@ export function WorkshiftApp() {
                               />
                               <div className="min-w-0 flex-1">
                                 <p className="truncate font-medium">{shift.employeeName}</p>
-                                <p className="truncate text-xs text-muted-foreground">
+                                <p className="truncate text-sm text-muted-foreground">
                                   {formatTimeRange(shift.startTime, shift.endTime)}
                                 </p>
                               </div>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-sm text-muted-foreground">
                                 {formatHours(shift.durationHours)}
                               </p>
                             </div>
@@ -576,9 +568,9 @@ export function WorkshiftApp() {
             </ResizablePanelGroup>
           </ResizablePanel>
 
-          <ResizableHandle withHandle className="bg-transparent" />
+          <ResizableHandle withHandle className="bg-border/65" />
 
-          <ResizablePanel defaultSize={38} minSize={22}>
+          <ResizablePanel defaultSize={34} minSize={22} maxSize={44}>
             <Card className="h-full">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
@@ -588,7 +580,7 @@ export function WorkshiftApp() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="h-[calc(100%-64px)]">
+              <CardContent className="min-h-0 flex-1">
                 <ScrollArea className="h-full">
                   {controller.workloadRows.length === 0 ? (
                     <p className="rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
@@ -605,7 +597,7 @@ export function WorkshiftApp() {
                             />
                             <p className="truncate font-medium">{workload.fullName}</p>
                           </div>
-                          <p className="mb-2 text-xs text-muted-foreground">
+                          <p className="mb-2 text-sm leading-snug text-muted-foreground">
                             {formatHours(workload.assignedHours)} assigned ·{" "}
                             {formatHours(workload.targetHours)} target ·{" "}
                             {formatHours(workload.remainingHours)} remaining
@@ -700,7 +692,7 @@ export function WorkshiftApp() {
                   }))
                 }}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Deducted from shifts when lunch is included in the day.
               </p>
             </div>
@@ -843,7 +835,7 @@ export function WorkshiftApp() {
                 />
                 <Label>Lunch break included</Label>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Uncheck it for morning or afternoon shifts where lunch happens
                 outside work.
               </p>
