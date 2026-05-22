@@ -417,9 +417,14 @@ export function WorkshiftApp() {
                   </CardHeader>
                   <CardContent className="min-h-0 flex-1">
                     <ScrollArea className="h-full">
-                      <div className="space-y-1.5 pr-2">
+                      <div
+                        className={cn(
+                          "space-y-1.5",
+                          controller.employeeRows.length > 0 && "pr-2"
+                        )}
+                      >
                         {controller.employeeRows.length === 0 && (
-                          <p className="rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
+                          <p className="w-full rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
                             No employees yet. Add a person to start planning shifts.
                           </p>
                         )}
@@ -578,9 +583,14 @@ export function WorkshiftApp() {
                   </CardHeader>
                   <CardContent className="min-h-0 flex-1">
                     <ScrollArea className="h-full">
-                      <div className="space-y-1.5 pr-2">
+                      <div
+                        className={cn(
+                          "space-y-1.5",
+                          controller.dailyShiftRows.length > 0 && "pr-2"
+                        )}
+                      >
                         {controller.dailyShiftRows.length === 0 && (
-                          <p className="rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
+                          <p className="w-full rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
                             No shifts for this day yet.
                           </p>
                         )}
