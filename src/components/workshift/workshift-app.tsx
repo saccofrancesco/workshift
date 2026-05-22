@@ -400,8 +400,8 @@ export function WorkshiftApp() {
   }
 
   return (
-    <main className="min-h-screen overflow-auto bg-muted/25 p-1">
-      <div className="mx-auto flex h-[calc(100vh-0.5rem)] min-h-[780px] min-w-[1320px] max-w-[1800px] flex-col">
+    <main className="min-h-screen overflow-auto bg-muted/25 p-4">
+      <div className="mx-auto flex h-[calc(100vh-2rem)] min-h-[780px] min-w-[1320px] max-w-[1800px] flex-col">
         <ResizablePanelGroup orientation="vertical" className="flex-1 gap-1">
           <ResizablePanel defaultSize="66%" minSize="56%" maxSize="78%">
             <ResizablePanelGroup orientation="horizontal" className="gap-1">
