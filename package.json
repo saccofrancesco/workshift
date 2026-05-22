@@ -1,6 +1,7 @@
 {
-  "name": "frontend",
+  "name": "workshift",
   "version": "1.0.0",
+  "author": "Francesco Sacco",
   "private": true,
   "scripts": {
     "dev": "next dev",
