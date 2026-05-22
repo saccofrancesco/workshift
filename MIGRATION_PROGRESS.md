@@ -218,6 +218,7 @@ Status: [~] In progress
 - [x] Revalidated lint/build after dashed empty-state width alignment fix in Employee/Shifts panels (2026-05-22).
 - [x] Revalidated lint/build after equal-height row-card standardization in Employee/Shifts panels (2026-05-22).
 - [x] Revalidated lint/build after width-parity correction and fixed-height rollback for Employee/Shifts cards (2026-05-22).
+- [x] Added automated GitHub Release pipeline workflow (`.github/workflows/release-tauri.yml`) for tag-based desktop builds and release asset publishing (2026-05-22).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.
@@ -233,7 +234,7 @@ Status: [~] In progress
 - [x] Adjust ESLint ignore scope for generated/non-project artifacts (`.venv/**`, `src-tauri/target/**`) to keep lint focused on project code.
 - [ ] Final type/lint pass.
 - [ ] Final parity review and residual differences log.
-- [ ] Update README and developer run instructions.
+- [x] Updated README with automated release and tagging process instructions.
 
 ## Open Differences / Risks Log
 - [~] In-memory-only schedule state remains intentional (matches current PyQt behavior; no save/load persistence yet).
@@ -244,6 +245,7 @@ Status: [~] In progress
 - [~] UI is functionally migrated and now aligned to baseline shadcn look; exact PyQt visual matching is temporarily deferred for the next customization phase.
 - [x] Theme-toggle hydration mismatch fixed by removing server/client divergent icon rendering.
 - [~] Full DMG installer bundling (`tauri build --bundles dmg`) failed in this environment; app bundle (`.app`) builds successfully.
+- [~] Release workflow currently produces unsigned installers by default; macOS/Windows code-signing setup remains pending for production distribution.
 
 ## Current Implementation Notes (New in Tauri/React)
 - Original PyQt behavior: signal/slot driven full refresh with in-memory `SessionState`.
