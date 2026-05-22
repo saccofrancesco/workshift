@@ -25,7 +25,7 @@ jobs:
             args: --target x86_64-apple-darwin
           - platform: ubuntu-22.04
             args: ""
-          - platform: windows-latest
+          - platform: windows-2025
             args: ""
 
     runs-on: ${{ matrix.platform }}
@@ -91,6 +91,16 @@ jobs:
         uses: tauri-apps/tauri-action@v0.6.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # macOS distribution:
+          # - fallback to ad-hoc signing ("-") when no Developer ID identity is configured
+          # - when APPLE_CERTIFICATE/APPLE_CERTIFICATE_PASSWORD + notarization credentials
+          #   are configured in repo secrets, builds are properly signed/notarized
+          APPLE_SIGNING_IDENTITY: ${{ matrix.platform == 'macos-latest' && (secrets.APPLE_SIGNING_IDENTITY != '' && secrets.APPLE_SIGNING_IDENTITY || '-') || '' }}
+          APPLE_CERTIFICATE: ${{ matrix.platform == 'macos-latest' && secrets.APPLE_CERTIFICATE || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ matrix.platform == 'macos-latest' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+          APPLE_ID: ${{ matrix.platform == 'macos-latest' && secrets.APPLE_ID || '' }}
+          APPLE_PASSWORD: ${{ matrix.platform == 'macos-latest' && secrets.APPLE_PASSWORD || '' }}
+          APPLE_TEAM_ID: ${{ matrix.platform == 'macos-latest' && secrets.APPLE_TEAM_ID || '' }}
         with:
           projectPath: .
           tagName: ${{ github.ref_name }}
