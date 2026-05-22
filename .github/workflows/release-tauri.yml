@@ -19,18 +19,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Linux x64
-            platform: ubuntu-22.04
-            args: ""
           - name: Windows x64
             platform: windows-latest
-            args: ""
-          - name: macOS arm64
-            platform: macos-latest
-            args: --target aarch64-apple-darwin
-          - name: macOS x64
-            platform: macos-latest
-            args: --target x86_64-apple-darwin
 
     runs-on: ${{ matrix.platform }}
 
@@ -60,26 +50,11 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: ./src-tauri -> target
-
-      - name: Install Linux system dependencies
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            build-essential \
-            libssl-dev \
-            libxdo-dev
 
       - name: Install frontend dependencies
         run: npm ci
@@ -88,12 +63,6 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY != '' && secrets.APPLE_SIGNING_IDENTITY || '-' }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
           tauriScript: npm run tauri
           tagName: ${{ github.ref_name }}
@@ -101,4 +70,3 @@ jobs:
           releaseBody: See the assets to download this version and install.
           releaseDraft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
-          args: ${{ matrix.args }}
