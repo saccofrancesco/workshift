@@ -468,7 +468,7 @@ export function WorkshiftApp() {
               <ResizablePanel defaultSize="56%" minSize="40%">
                 <Card className="flex h-full flex-col shadow-none">
                   <CardHeader className="pb-2">
-                    <CardTitle>Monthly calendar</CardTitle>
+                    <CardTitle>Calendar</CardTitle>
                   </CardHeader>
                   <CardContent className="flex min-h-0 flex-1 flex-col gap-3">
                     <div className="flex items-center gap-1.5">
@@ -775,7 +775,7 @@ export function WorkshiftApp() {
                     type="button"
                     aria-label={`Set color ${color}`}
                     className={cn(
-                      "h-8 rounded-md border transition-colors",
+                      "h-8 cursor-pointer rounded-md border transition-colors",
                       employeeDraft.colorHex.toLowerCase() === color
                         ? "ring-2 ring-ring"
                         : "hover:border-foreground/40"
