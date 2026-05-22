@@ -430,8 +430,8 @@ export function WorkshiftApp() {
                         )}
 
                         {controller.employeeRows.map((employee) => (
-                          <div key={employee.id} className="rounded-lg border bg-card px-2.5 py-2">
-                            <div className="flex items-center gap-2">
+                          <div key={employee.id} className="h-14 rounded-lg border bg-card px-2.5 py-2">
+                            <div className="flex h-full items-center gap-2">
                               <span
                                 className="inline-flex size-2.5 shrink-0 rounded-full"
                                 style={{ backgroundColor: employee.colorHex }}
@@ -596,8 +596,8 @@ export function WorkshiftApp() {
                         )}
 
                         {controller.dailyShiftRows.map((shift) => (
-                          <div key={shift.id} className="rounded-lg border bg-card px-2.5 py-2">
-                            <div className="flex items-center gap-2">
+                          <div key={shift.id} className="h-14 rounded-lg border bg-card px-2.5 py-2">
+                            <div className="flex h-full items-center gap-2">
                               <span
                                 className="inline-flex size-2.5 shrink-0 rounded-full"
                                 style={{ backgroundColor: shift.colorHex }}

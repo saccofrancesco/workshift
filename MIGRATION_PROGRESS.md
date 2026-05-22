@@ -187,6 +187,7 @@ Status: [~] In progress
   - Reduced item-card padding and list vertical spacing.
   - Kept recap cards unchanged.
 - [x] Expanded dashed empty-state panels (`Employee`/`Shifts`) to align with header-row width by removing extra right inset when lists are empty.
+- [x] Standardized generated item-card height in `Employee` and `Shifts` so all rows render with consistent size.
 - [~] PyQt-exact visual parity (palette, typography, spacing micro-details, control states) remains pending after this intentional baseline reset.
 
 ## 12) Testing
@@ -212,6 +213,7 @@ Status: [~] In progress
 - [x] Revalidated lint/build after calendar-title rename + pointer-cursor affordance update (2026-05-22).
 - [x] Revalidated lint/build after compact inline-action redesign for Employee/Shifts cards (2026-05-22).
 - [x] Revalidated lint/build after dashed empty-state width alignment fix in Employee/Shifts panels (2026-05-22).
+- [x] Revalidated lint/build after equal-height row-card standardization in Employee/Shifts panels (2026-05-22).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.
