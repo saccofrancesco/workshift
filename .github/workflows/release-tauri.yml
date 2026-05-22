@@ -1,0 +1,72 @@
+name: Release Tauri App
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish-tauri:
+    name: Build and release (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            platform: windows-latest
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Validate tag/version alignment
+        shell: bash
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          TAURI_VERSION="$(node -p "require('./src-tauri/tauri.conf.json').version")"
+          CARGO_VERSION="$(grep -m1 '^version = ' src-tauri/Cargo.toml | sed -E 's/version = \"([^\"]+)\"/\1/')"
+
+          echo "tag=${TAG_VERSION} package=${PACKAGE_VERSION} tauri=${TAURI_VERSION} cargo=${CARGO_VERSION}"
+
+          [[ "${PACKAGE_VERSION}" == "${TAG_VERSION}" ]] || { echo "package.json version does not match ${GITHUB_REF_NAME}"; exit 1; }
+          [[ "${TAURI_VERSION}" == "${TAG_VERSION}" ]] || { echo "tauri.conf.json version does not match ${GITHUB_REF_NAME}"; exit 1; }
+          [[ "${CARGO_VERSION}" == "${TAG_VERSION}" ]] || { echo "Cargo.toml version does not match ${GITHUB_REF_NAME}"; exit 1; }
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: ./src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and upload release artifacts
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tauriScript: npm run tauri
+          tagName: ${{ github.ref_name }}
+          releaseName: Workshift ${{ github.ref_name }}
+          releaseBody: See the assets to download this version and install.
+          releaseDraft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
