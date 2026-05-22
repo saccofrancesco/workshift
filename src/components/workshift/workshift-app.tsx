@@ -417,12 +417,7 @@ export function WorkshiftApp() {
                   </CardHeader>
                   <CardContent className="min-h-0 flex-1">
                     <ScrollArea className="h-full">
-                      <div
-                        className={cn(
-                          "space-y-1.5",
-                          controller.employeeRows.length > 0 && "pr-2"
-                        )}
-                      >
+                      <div className="space-y-1.5">
                         {controller.employeeRows.length === 0 && (
                           <p className="w-full rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
                             No employees yet. Add a person to start planning shifts.
@@ -430,8 +425,8 @@ export function WorkshiftApp() {
                         )}
 
                         {controller.employeeRows.map((employee) => (
-                          <div key={employee.id} className="h-14 rounded-lg border bg-card px-2.5 py-2">
-                            <div className="flex h-full items-center gap-2">
+                          <div key={employee.id} className="w-full rounded-lg border bg-card px-2.5 py-2">
+                            <div className="flex items-center gap-2">
                               <span
                                 className="inline-flex size-2.5 shrink-0 rounded-full"
                                 style={{ backgroundColor: employee.colorHex }}
@@ -583,12 +578,7 @@ export function WorkshiftApp() {
                   </CardHeader>
                   <CardContent className="min-h-0 flex-1">
                     <ScrollArea className="h-full">
-                      <div
-                        className={cn(
-                          "space-y-1.5",
-                          controller.dailyShiftRows.length > 0 && "pr-2"
-                        )}
-                      >
+                      <div className="space-y-1.5">
                         {controller.dailyShiftRows.length === 0 && (
                           <p className="w-full rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
                             No shifts for this day yet.
@@ -596,8 +586,8 @@ export function WorkshiftApp() {
                         )}
 
                         {controller.dailyShiftRows.map((shift) => (
-                          <div key={shift.id} className="h-14 rounded-lg border bg-card px-2.5 py-2">
-                            <div className="flex h-full items-center gap-2">
+                          <div key={shift.id} className="w-full rounded-lg border bg-card px-2.5 py-2">
+                            <div className="flex items-center gap-2">
                               <span
                                 className="inline-flex size-2.5 shrink-0 rounded-full"
                                 style={{ backgroundColor: shift.colorHex }}
