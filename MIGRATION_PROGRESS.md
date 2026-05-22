@@ -219,6 +219,7 @@ Status: [~] In progress
 - [x] Revalidated lint/build after equal-height row-card standardization in Employee/Shifts panels (2026-05-22).
 - [x] Revalidated lint/build after width-parity correction and fixed-height rollback for Employee/Shifts cards (2026-05-22).
 - [x] Added automated GitHub Release pipeline workflow (`.github/workflows/release-tauri.yml`) for tag-based desktop builds and release asset publishing (2026-05-22).
+- [x] Fixed release workflow action resolution by pinning `tauri-apps/tauri-action` to existing `v0.6.2` tag (2026-05-22).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.
