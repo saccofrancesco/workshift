@@ -224,6 +224,9 @@ Status: [~] In progress
   - `windows-latest` runner notice avoided by targeting `windows-2025`.
   - macOS CI now falls back to ad-hoc signing when no Apple signing identity is configured.
   - README now documents required Apple secrets for proper signed/notarized distribution.
+- [x] Fixed macOS CI certificate import crash (`security import` invalid parameters) by splitting release step paths:
+  - signed/notarized path only when `APPLE_CERTIFICATE` and `APPLE_CERTIFICATE_PASSWORD` are present.
+  - ad-hoc fallback path with `APPLE_SIGNING_IDENTITY="-"` and no certificate env injection.
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.

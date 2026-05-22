@@ -16,7 +16,7 @@ This repository includes an automated GitHub Actions pipeline:
 - Trigger: push a Git tag matching `v*` (example: `v0.2.0`)
 - Output: builds Tauri bundles for macOS, Windows, and Linux and publishes them as GitHub Release assets.
 - macOS behavior:
-  - if Apple signing secrets are not configured, the workflow falls back to ad-hoc signing (`APPLE_SIGNING_IDENTITY="-"`) for test builds.
+  - if `APPLE_CERTIFICATE` and `APPLE_CERTIFICATE_PASSWORD` are not configured, the workflow falls back to ad-hoc signing (`APPLE_SIGNING_IDENTITY="-"`) for test builds.
   - for production distribution (no "damaged"/Gatekeeper issues), configure Apple code-signing + notarization secrets (see below).
 
 The workflow also validates that:
