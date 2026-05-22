@@ -180,6 +180,7 @@ Status: [~] In progress
 - [x] Removed shadow from the four main dashboard section wrapper cards to eliminate corner gray artifacts while keeping thin border separation.
 - [x] Restored full-height flex behavior on the four main dashboard cards so the central calendar panel stretches/shrinks correctly with resizable layout changes.
 - [x] Aligned outer dashboard edge spacing with inter-section spacing by increasing shell padding to match panel-gap + handle rhythm.
+- [x] Simplified section titles to `Employee`, `Shifts`, and `Recap` and slightly reduced card inner padding to improve content density.
 - [~] PyQt-exact visual parity (palette, typography, spacing micro-details, control states) remains pending after this intentional baseline reset.
 
 ## 12) Testing
@@ -201,6 +202,7 @@ Status: [~] In progress
 - [x] Revalidated lint/build after restoring default shadcn card wrappers for the four main sections (2026-05-21).
 - [x] Revalidated lint/build after fixing main-card corner artifact and calendar stretch regression (2026-05-21).
 - [x] Revalidated lint/build after edge-spacing parity adjustment between outer shell and section gaps (2026-05-22).
+- [x] Revalidated lint/build after section-title simplification and card-padding density tune (2026-05-22).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.

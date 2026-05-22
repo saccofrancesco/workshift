@@ -409,7 +409,7 @@ export function WorkshiftApp() {
                 <Card className="flex h-full flex-col shadow-none">
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-2">
-                      <CardTitle>Employees</CardTitle>
+                      <CardTitle>Employee</CardTitle>
                       <Button size="sm" className="ml-auto" onClick={openAddEmployeeDialog}>
                         Add person
                       </Button>
@@ -563,7 +563,7 @@ export function WorkshiftApp() {
                 <Card className="flex h-full flex-col shadow-none">
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-2">
-                      <CardTitle>Daily shifts</CardTitle>
+                      <CardTitle>Shifts</CardTitle>
                       <Button
                         size="sm"
                         className="ml-auto"
@@ -632,7 +632,7 @@ export function WorkshiftApp() {
             <Card className="flex h-full flex-col shadow-none">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
-                  <CardTitle>Employee workload recap</CardTitle>
+                  <CardTitle>Recap</CardTitle>
                   <Button size="sm" className="ml-auto" onClick={() => void handleExport()}>
                     Export .xlsx
                   </Button>
