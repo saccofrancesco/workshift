@@ -417,7 +417,7 @@ export function WorkshiftApp() {
                   </CardHeader>
                   <CardContent className="min-h-0 flex-1">
                     <ScrollArea className="h-full">
-                      <div className="space-y-2 pr-2">
+                      <div className="space-y-1.5 pr-2">
                         {controller.employeeRows.length === 0 && (
                           <p className="rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
                             No employees yet. Add a person to start planning shifts.
@@ -425,35 +425,37 @@ export function WorkshiftApp() {
                         )}
 
                         {controller.employeeRows.map((employee) => (
-                          <div key={employee.id} className="rounded-lg border bg-card p-3">
-                            <div className="flex items-start gap-2">
+                          <div key={employee.id} className="rounded-lg border bg-card px-2.5 py-2">
+                            <div className="flex items-center gap-2">
                               <span
-                                className="mt-1 inline-flex size-3 shrink-0 rounded-full"
+                                className="inline-flex size-2.5 shrink-0 rounded-full"
                                 style={{ backgroundColor: employee.colorHex }}
                               />
                               <div className="min-w-0 flex-1">
-                                <p className="truncate font-medium">{employee.fullName}</p>
-                                <p className="truncate text-sm text-muted-foreground">
+                                <p className="truncate text-sm leading-tight font-medium">
+                                  {employee.fullName}
+                                </p>
+                                <p className="truncate text-xs text-muted-foreground">
                                   {formatHours(employee.monthlyTargetHours)} / month ·{" "}
                                   {formatHours(employee.lunchBreakHours)} lunch break
                                 </p>
                               </div>
-                            </div>
-                            <div className="mt-3 flex justify-end gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openEditEmployeeDialog(employee.id)}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => requestDeleteEmployee(employee.id)}
-                              >
-                                Delete
-                              </Button>
+                              <div className="ml-auto flex shrink-0 items-center gap-1">
+                                <Button
+                                  size="xs"
+                                  variant="outline"
+                                  onClick={() => openEditEmployeeDialog(employee.id)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  size="xs"
+                                  variant="destructive"
+                                  onClick={() => requestDeleteEmployee(employee.id)}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -576,7 +578,7 @@ export function WorkshiftApp() {
                   </CardHeader>
                   <CardContent className="min-h-0 flex-1">
                     <ScrollArea className="h-full">
-                      <div className="space-y-2 pr-2">
+                      <div className="space-y-1.5 pr-2">
                         {controller.dailyShiftRows.length === 0 && (
                           <p className="rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
                             No shifts for this day yet.
@@ -584,37 +586,37 @@ export function WorkshiftApp() {
                         )}
 
                         {controller.dailyShiftRows.map((shift) => (
-                          <div key={shift.id} className="rounded-lg border bg-card p-3">
-                            <div className="flex items-start gap-2">
+                          <div key={shift.id} className="rounded-lg border bg-card px-2.5 py-2">
+                            <div className="flex items-center gap-2">
                               <span
-                                className="mt-1 inline-flex size-3 shrink-0 rounded-full"
+                                className="inline-flex size-2.5 shrink-0 rounded-full"
                                 style={{ backgroundColor: shift.colorHex }}
                               />
                               <div className="min-w-0 flex-1">
-                                <p className="truncate font-medium">{shift.employeeName}</p>
-                                <p className="truncate text-sm text-muted-foreground">
-                                  {formatTimeRange(shift.startTime, shift.endTime)}
+                                <p className="truncate text-sm leading-tight font-medium">
+                                  {shift.employeeName}
+                                </p>
+                                <p className="truncate text-xs text-muted-foreground">
+                                  {formatTimeRange(shift.startTime, shift.endTime)} ·{" "}
+                                  {formatHours(shift.durationHours)}
                                 </p>
                               </div>
-                              <p className="text-sm text-muted-foreground">
-                                {formatHours(shift.durationHours)}
-                              </p>
-                            </div>
-                            <div className="mt-3 flex justify-end gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openEditShiftDialog(shift.id)}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => requestDeleteShift(shift.id)}
-                              >
-                                Delete
-                              </Button>
+                              <div className="ml-auto flex shrink-0 items-center gap-1">
+                                <Button
+                                  size="xs"
+                                  variant="outline"
+                                  onClick={() => openEditShiftDialog(shift.id)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  size="xs"
+                                  variant="destructive"
+                                  onClick={() => requestDeleteShift(shift.id)}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         ))}

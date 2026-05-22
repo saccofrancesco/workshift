@@ -182,6 +182,10 @@ Status: [~] In progress
 - [x] Aligned outer dashboard edge spacing with inter-section spacing by increasing shell padding to match panel-gap + handle rhythm.
 - [x] Simplified section titles to `Employee`, `Shifts`, and `Recap` and slightly reduced card inner padding to improve content density.
 - [x] Renamed center section title to `Calendar` and standardized pointer cursor behavior on clickable buttons for clearer affordance.
+- [x] Compacted `Employee` and `Shifts` list item cards for higher information density:
+  - Moved `Edit`/`Delete` actions inline on each row.
+  - Reduced item-card padding and list vertical spacing.
+  - Kept recap cards unchanged.
 - [~] PyQt-exact visual parity (palette, typography, spacing micro-details, control states) remains pending after this intentional baseline reset.
 
 ## 12) Testing
@@ -205,6 +209,7 @@ Status: [~] In progress
 - [x] Revalidated lint/build after edge-spacing parity adjustment between outer shell and section gaps (2026-05-22).
 - [x] Revalidated lint/build after section-title simplification and card-padding density tune (2026-05-22).
 - [x] Revalidated lint/build after calendar-title rename + pointer-cursor affordance update (2026-05-22).
+- [x] Revalidated lint/build after compact inline-action redesign for Employee/Shifts cards (2026-05-22).
 - [ ] Add dedicated unit tests for migrated logic.
 - [ ] Add integration tests for full CRUD + export flows.
 - [ ] Perform side-by-side manual QA against PyQt app.
