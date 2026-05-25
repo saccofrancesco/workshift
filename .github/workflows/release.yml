@@ -97,7 +97,7 @@ jobs:
         with:
           tauriScript: npm run tauri
           tagName: ${{ github.ref_name }}
-          releaseName: Workshift ${{ github.ref_name }}
+          releaseName: ${{ github.ref_name }}
           releaseBody: See the assets to download this version and install.
           releaseDraft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
