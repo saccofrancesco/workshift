@@ -82,6 +82,8 @@ Alternative portable macOS app archives:
 - Apple Silicon: [workshift-macos-aarch64.app.tar.gz](https://github.com/saccofrancesco/workshift/releases/latest/download/workshift-macos-aarch64.app.tar.gz)
 - Intel: [workshift-macos-x64.app.tar.gz](https://github.com/saccofrancesco/workshift/releases/latest/download/workshift-macos-x64.app.tar.gz)
 
+Note: portable macOS `.app.tar.gz` assets are optional and may be absent in some releases.
+
 ---
 
 ## Quickstart
