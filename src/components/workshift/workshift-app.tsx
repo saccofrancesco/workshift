@@ -463,7 +463,7 @@ export function WorkshiftApp() {
                       </Button>
                     </div>
                   </CardHeader>
-                  <CardContent className="min-h-0 flex-1">
+                  <CardContent className="min-h-0 flex-1 pt-1">
                     <ScrollArea className="h-full">
                       <div className="space-y-1.5">
                         {controller.employeeRows.length === 0 && (
@@ -654,7 +654,7 @@ export function WorkshiftApp() {
                       </div>
                     )}
                   </CardHeader>
-                  <CardContent className="min-h-0 flex-1">
+                  <CardContent className="min-h-0 flex-1 pt-1">
                     <ScrollArea className="h-full">
                       <div className="space-y-1.5">
                         {controller.dailyShiftRows.length === 0 && (
@@ -725,7 +725,7 @@ export function WorkshiftApp() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="min-h-0 flex-1">
+              <CardContent className="min-h-0 flex-1 pt-1">
                 <ScrollArea className="h-full">
                   {controller.workloadRows.length === 0 ? (
                     <p className="rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
