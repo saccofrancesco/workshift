@@ -71,6 +71,14 @@ interface ShiftDraft {
   includesLunchBreak: boolean
 }
 
+interface ShiftClipboardState {
+  employeeId: string
+  employeeName: string
+  startTime: string
+  endTime: string
+  includesLunchBreak: boolean
+}
+
 type EmployeeDialogState =
   | { open: false }
   | { open: true; mode: "add" }
@@ -183,6 +191,7 @@ export function WorkshiftApp() {
     endTime: "18:00",
     includesLunchBreak: true,
   })
+  const [shiftClipboard, setShiftClipboard] = useState<ShiftClipboardState | null>(null)
 
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [errorState, setErrorState] = useState<NoticeState | null>(null)
@@ -211,6 +220,14 @@ export function WorkshiftApp() {
     }
     return [currentValue, ...LUNCH_BREAK_OPTIONS]
   }, [employeeDraft.lunchBreakHours])
+  const canPasteCopiedShift =
+    shiftClipboard !== null && employeeNameById.has(shiftClipboard.employeeId)
+  const copiedShiftMissingEmployee =
+    shiftClipboard !== null && !employeeNameById.has(shiftClipboard.employeeId)
+  const copiedShiftEmployeeName =
+    shiftClipboard !== null
+      ? (employeeNameById.get(shiftClipboard.employeeId) ?? shiftClipboard.employeeName)
+      : ""
 
   const executeSafely = (title: string, action: () => void) => {
     try {
@@ -307,6 +324,37 @@ export function WorkshiftApp() {
       const shift = controller.getShift(shiftId)
       setShiftDraft(shiftToDraft(shift))
       setShiftDialog({ open: true, mode: "edit", shiftId })
+    })
+  }
+
+  const copyShiftToClipboard = (shiftId: string) => {
+    executeSafely("Cannot copy shift", () => {
+      const shift = controller.getShift(shiftId)
+      const employeeName =
+        employeeNameById.get(shift.employeeId) ?? "Unknown employee"
+      setShiftClipboard({
+        employeeId: shift.employeeId,
+        employeeName,
+        startTime: shift.startTime,
+        endTime: shift.endTime,
+        includesLunchBreak: shift.includesLunchBreak,
+      })
+    })
+  }
+
+  const pasteCopiedShift = () => {
+    if (!shiftClipboard) {
+      return
+    }
+
+    executeSafely("Cannot paste shift", () => {
+      controller.addShift({
+        employeeId: shiftClipboard.employeeId,
+        shiftDate: controller.state.viewState.selectedDay,
+        startTime: shiftClipboard.startTime,
+        endTime: shiftClipboard.endTime,
+        includesLunchBreak: shiftClipboard.includesLunchBreak,
+      })
     })
   }
 
@@ -563,18 +611,48 @@ export function WorkshiftApp() {
 
               <ResizablePanel defaultSize="22%" minSize="18%" maxSize="30%">
                 <Card className="flex h-full flex-col shadow-none">
-                  <CardHeader className="pb-2">
+                  <CardHeader className="space-y-2 pb-2">
                     <div className="flex items-center gap-2">
                       <CardTitle>Shifts</CardTitle>
-                      <Button
-                        size="sm"
-                        className="ml-auto"
-                        disabled={controller.employeeRows.length === 0}
-                        onClick={openAddShiftDialog}
-                      >
-                        Add shift
-                      </Button>
+                      <div className="ml-auto flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={!canPasteCopiedShift}
+                          onClick={pasteCopiedShift}
+                        >
+                          Paste shift
+                        </Button>
+                        <Button
+                          size="sm"
+                          disabled={controller.employeeRows.length === 0}
+                          onClick={openAddShiftDialog}
+                        >
+                          Add shift
+                        </Button>
+                      </div>
                     </div>
+                    {shiftClipboard && (
+                      <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-2 py-1.5 text-xs">
+                        <p className="min-w-0 flex-1 truncate text-muted-foreground">
+                          Copied: {copiedShiftEmployeeName} ·{" "}
+                          {formatTimeRange(shiftClipboard.startTime, shiftClipboard.endTime)} ·{" "}
+                          {shiftClipboard.includesLunchBreak
+                            ? "lunch included"
+                            : "lunch not included"}
+                        </p>
+                        {copiedShiftMissingEmployee && (
+                          <span className="text-destructive">Employee removed</span>
+                        )}
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          onClick={() => setShiftClipboard(null)}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    )}
                   </CardHeader>
                   <CardContent className="min-h-0 flex-1">
                     <ScrollArea className="h-full">
@@ -602,6 +680,13 @@ export function WorkshiftApp() {
                                 </p>
                               </div>
                               <div className="ml-auto flex shrink-0 items-center gap-1">
+                                <Button
+                                  size="xs"
+                                  variant="secondary"
+                                  onClick={() => copyShiftToClipboard(shift.id)}
+                                >
+                                  Copy
+                                </Button>
                                 <Button
                                   size="xs"
                                   variant="outline"
