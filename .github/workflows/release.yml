@@ -22,22 +22,22 @@ jobs:
           - name: Windows x64
             platform: windows-latest
             args: ""
-            assetProfile: windows-x64
+            releaseAssetNamePattern: "workshift-windows-x64[setup][ext]"
 
           - name: Linux x64
             platform: ubuntu-22.04
             args: ""
-            assetProfile: linux-x64
+            releaseAssetNamePattern: "workshift-linux-x64[ext]"
 
           - name: macOS Apple Silicon
             platform: macos-latest
             args: --target aarch64-apple-darwin
-            assetProfile: macos-aarch64
+            releaseAssetNamePattern: "workshift-macos-aarch64[ext]"
 
           - name: macOS Intel
             platform: macos-latest
             args: --target x86_64-apple-darwin
-            assetProfile: macos-x64
+            releaseAssetNamePattern: "workshift-macos-x64[ext]"
 
     runs-on: ${{ matrix.platform }}
 
@@ -106,87 +106,4 @@ jobs:
           releaseDraft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
           args: ${{ matrix.args }}
-
-      - name: Upload stable alias assets
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-
-          find_newest_match() {
-            local pattern="$1"
-            local -a matches=()
-
-            while IFS= read -r -d '' file; do
-              matches+=("${file}")
-            done < <(find src-tauri/target -type f -name "$pattern" -print0)
-
-            if [[ "${#matches[@]}" -eq 0 ]]; then
-              echo ""
-              return 0
-            fi
-
-            local source_path="${matches[0]}"
-            for file in "${matches[@]}"; do
-              if [[ "${file}" -nt "${source_path}" ]]; then
-                source_path="${file}"
-              fi
-            done
-
-            echo "${source_path}"
-          }
-
-          upload_alias_required() {
-            local pattern="$1"
-            local alias_name="$2"
-            local source_path
-            source_path="$(find_newest_match "$pattern")"
-
-            if [[ -z "${source_path}" ]]; then
-              echo "Could not find a bundled asset matching pattern: ${pattern}"
-              exit 1
-            fi
-
-            echo "Uploading alias ${alias_name} from ${source_path}"
-            gh release upload "${GITHUB_REF_NAME}" "${source_path}#${alias_name}" --clobber --repo "${GITHUB_REPOSITORY}"
-          }
-
-          upload_alias_optional() {
-            local pattern="$1"
-            local alias_name="$2"
-            local source_path
-            source_path="$(find_newest_match "$pattern")"
-
-            if [[ -z "${source_path}" ]]; then
-              echo "Skipping optional alias ${alias_name}; no artifact matching ${pattern}"
-              return 0
-            fi
-
-            echo "Uploading alias ${alias_name} from ${source_path}"
-            gh release upload "${GITHUB_REF_NAME}" "${source_path}#${alias_name}" --clobber --repo "${GITHUB_REPOSITORY}"
-          }
-
-          case "${{ matrix.assetProfile }}" in
-            windows-x64)
-              upload_alias_required "*x64-setup.exe" "workshift-windows-x64-setup.exe"
-              upload_alias_required "*x64_en-US.msi" "workshift-windows-x64.msi"
-              ;;
-            linux-x64)
-              upload_alias_required "*_amd64.AppImage" "workshift-linux-x64.AppImage"
-              upload_alias_required "*_amd64.deb" "workshift-linux-x64.deb"
-              upload_alias_required "*x86_64.rpm" "workshift-linux-x64.rpm"
-              ;;
-            macos-aarch64)
-              upload_alias_required "*_aarch64.dmg" "workshift-macos-aarch64.dmg"
-              upload_alias_optional "*_aarch64.app.tar.gz" "workshift-macos-aarch64.app.tar.gz"
-              ;;
-            macos-x64)
-              upload_alias_required "*_x64.dmg" "workshift-macos-x64.dmg"
-              upload_alias_optional "*_x64.app.tar.gz" "workshift-macos-x64.app.tar.gz"
-              ;;
-            *)
-              echo "Unknown asset profile: ${{ matrix.assetProfile }}"
-              exit 1
-              ;;
-          esac
+          releaseAssetNamePattern: ${{ matrix.releaseAssetNamePattern }}
