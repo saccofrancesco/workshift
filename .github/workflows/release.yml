@@ -22,22 +22,22 @@ jobs:
           - name: Windows x64
             platform: windows-latest
             args: ""
-            releaseAssetNamePattern: "workshift-windows-x64[setup][ext]"
+            assetNamePattern: "workshift-windows-x64[setup][ext]"
 
           - name: Linux x64
             platform: ubuntu-22.04
             args: ""
-            releaseAssetNamePattern: "workshift-linux-x64[ext]"
+            assetNamePattern: "workshift-linux-x64[ext]"
 
           - name: macOS Apple Silicon
             platform: macos-latest
             args: --target aarch64-apple-darwin
-            releaseAssetNamePattern: "workshift-macos-aarch64[ext]"
+            assetNamePattern: "workshift-macos-aarch64[ext]"
 
           - name: macOS Intel
             platform: macos-latest
             args: --target x86_64-apple-darwin
-            releaseAssetNamePattern: "workshift-macos-x64[ext]"
+            assetNamePattern: "workshift-macos-x64[ext]"
 
     runs-on: ${{ matrix.platform }}
 
@@ -106,4 +106,4 @@ jobs:
           releaseDraft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
           args: ${{ matrix.args }}
-          releaseAssetNamePattern: ${{ matrix.releaseAssetNamePattern }}
+          assetNamePattern: ${{ matrix.assetNamePattern }}
