@@ -15,6 +15,8 @@ concurrency:
 jobs:
   publish-tauri:
     name: Build and release (${{ matrix.name }})
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -43,6 +45,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate tag points to a remote commit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TAG_SHA="$(git rev-list -n 1 "${GITHUB_REF}")"
+          git fetch --no-tags origin "+refs/heads/*:refs/remotes/origin/*"
+
+          if git branch -r --contains "${TAG_SHA}" | grep -q "origin/"; then
+            echo "tag ${GITHUB_REF_NAME} -> ${TAG_SHA} is reachable from a remote branch."
+          else
+            echo "::error::tag ${GITHUB_REF_NAME} points to ${TAG_SHA}, but that commit is not reachable from any remote branch."
+            echo "::error::Push your branch before pushing the tag, then push the tag again."
+            echo "::error::Example: git push origin main && git push origin ${GITHUB_REF_NAME}"
+            exit 1
+          fi
 
       - name: Setup Node.js (LTS)
         uses: actions/setup-node@v4
