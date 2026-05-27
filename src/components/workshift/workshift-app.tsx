@@ -36,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { TimePicker } from "@/components/ui/time-picker"
 import { cn } from "@/lib/utils"
 import {
   createDefaultSessionState,
@@ -135,12 +136,6 @@ const LUNCH_BREAK_OPTIONS = [
   "1.5",
   "2",
 ] as const
-
-const SHIFT_TIME_OPTIONS = Array.from({ length: 48 }, (_, index) => {
-  const hour = Math.floor(index / 2)
-  const minute = index % 2 === 0 ? "00" : "30"
-  return `${hour.toString().padStart(2, "0")}:${minute}`
-})
 
 function employeeToDraft(employee: Employee): EmployeeDraft {
   return {
@@ -978,50 +973,30 @@ export function WorkshiftApp() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Start time</Label>
-                <Select
+                <TimePicker
                   value={shiftDraft.startTime}
-                  onValueChange={(value) => {
+                  onValueChange={(nextTime) => {
                     setShiftDraft((current) => ({
                       ...current,
-                      startTime: value ?? current.startTime,
+                      startTime: nextTime,
                     }))
                   }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SHIFT_TIME_OPTIONS.map((time) => (
-                      <SelectItem key={`start-${time}`} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  quickTimes={["06:00", "07:00", "08:00", "09:00", "10:00", "12:00"]}
+                />
               </div>
 
               <div className="space-y-2">
                 <Label>End time</Label>
-                <Select
+                <TimePicker
                   value={shiftDraft.endTime}
-                  onValueChange={(value) => {
+                  onValueChange={(nextTime) => {
                     setShiftDraft((current) => ({
                       ...current,
-                      endTime: value ?? current.endTime,
+                      endTime: nextTime,
                     }))
                   }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SHIFT_TIME_OPTIONS.map((time) => (
-                      <SelectItem key={`end-${time}`} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  quickTimes={["12:00", "14:00", "16:00", "18:00", "20:00", "22:00"]}
+                />
               </div>
             </div>
 
