@@ -30,7 +30,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
@@ -957,15 +959,18 @@ export function WorkshiftApp() {
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {employeeOptions.map((employee) => (
-                    <SelectItem
-                      key={employee.id}
-                      value={employee.id}
-                      label={employeeNameById.get(employee.id)}
-                    >
-                      {employeeNameById.get(employee.id)}
-                    </SelectItem>
-                  ))}
+                  <SelectGroup>
+                    <SelectLabel>Available employees</SelectLabel>
+                    {employeeOptions.map((employee) => (
+                      <SelectItem
+                        key={employee.id}
+                        value={employee.id}
+                        label={employeeNameById.get(employee.id)}
+                      >
+                        {employeeNameById.get(employee.id)}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
