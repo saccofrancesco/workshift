@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
-import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
-import { ChevronDown, Clock3, Minus, Plus } from "lucide-react"
+import { useMemo } from "react";
+import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
+import { ChevronDown, Clock3, Minus, Plus } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
-const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d$/
-const DAY_MINUTES = 24 * 60
-const HOURS = Array.from({ length: 24 }, (_, value) => value)
+const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+const DAY_MINUTES = 24 * 60;
+const HOURS = Array.from({ length: 24 }, (_, value) => value);
 const DEFAULT_QUICK_TIMES = [
   "06:00",
   "08:00",
@@ -18,51 +18,58 @@ const DEFAULT_QUICK_TIMES = [
   "12:00",
   "18:00",
   "22:00",
-] as const
+] as const;
 
 interface TimePickerProps {
-  value: string
-  onValueChange: (value: string) => void
-  className?: string
-  disabled?: boolean
-  minuteStep?: number
-  quickTimes?: readonly string[]
+  value: string;
+  onValueChange: (value: string) => void;
+  className?: string;
+  disabled?: boolean;
+  minuteStep?: number;
+  quickTimes?: readonly string[];
 }
 
 interface ParsedTime {
-  hours: number
-  minutes: number
+  hours: number;
+  minutes: number;
 }
 
 function parseTime(value: string): ParsedTime | null {
   if (!TIME_PATTERN.test(value)) {
-    return null
+    return null;
   }
 
-  const [hours, minutes] = value.split(":").map((part) => Number.parseInt(part, 10))
-  return { hours, minutes }
+  const [hours, minutes] = value
+    .split(":")
+    .map((part) => Number.parseInt(part, 10));
+  return { hours, minutes };
 }
 
 function formatTime(hours: number, minutes: number): string {
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
+  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 }
 
 function createMinuteOptions(step: number): number[] {
-  const normalizedStep = Math.trunc(step)
+  const normalizedStep = Math.trunc(step);
   if (normalizedStep <= 0 || normalizedStep > 60 || 60 % normalizedStep !== 0) {
-    return [0, 30]
+    return [0, 30];
   }
-  return Array.from({ length: 60 / normalizedStep }, (_, index) => index * normalizedStep)
+  return Array.from(
+    { length: 60 / normalizedStep },
+    (_, index) => index * normalizedStep,
+  );
 }
 
 function findClosestMinute(value: number, minuteOptions: number[]): number {
   return minuteOptions.reduce((closest, current) => {
-    return Math.abs(current - value) < Math.abs(closest - value) ? current : closest
-  }, minuteOptions[0] ?? 0)
+    return Math.abs(current - value) < Math.abs(closest - value)
+      ? current
+      : closest;
+  }, minuteOptions[0] ?? 0);
 }
 
 function normalizeMinutes(totalMinutes: number): number {
-  return ((totalMinutes % DAY_MINUTES) + DAY_MINUTES) % DAY_MINUTES
+  return ((totalMinutes % DAY_MINUTES) + DAY_MINUTES) % DAY_MINUTES;
 }
 
 export function TimePicker({
@@ -73,31 +80,34 @@ export function TimePicker({
   minuteStep = 30,
   quickTimes = DEFAULT_QUICK_TIMES,
 }: TimePickerProps) {
-  const minuteOptions = useMemo(() => createMinuteOptions(minuteStep), [minuteStep])
-  const parsed = parseTime(value) ?? { hours: 9, minutes: 0 }
-  const snappedMinutes = findClosestMinute(parsed.minutes, minuteOptions)
-  const displayTime = formatTime(parsed.hours, snappedMinutes)
+  const minuteOptions = useMemo(
+    () => createMinuteOptions(minuteStep),
+    [minuteStep],
+  );
+  const parsed = parseTime(value) ?? { hours: 9, minutes: 0 };
+  const snappedMinutes = findClosestMinute(parsed.minutes, minuteOptions);
+  const displayTime = formatTime(parsed.hours, snappedMinutes);
 
   const validQuickTimes = useMemo(() => {
-    return quickTimes.filter((time) => parseTime(time) !== null)
-  }, [quickTimes])
+    return quickTimes.filter((time) => parseTime(time) !== null);
+  }, [quickTimes]);
 
   const setHour = (nextHour: number) => {
-    onValueChange(formatTime(nextHour, snappedMinutes))
-  }
+    onValueChange(formatTime(nextHour, snappedMinutes));
+  };
 
   const setMinute = (nextMinute: number) => {
-    onValueChange(formatTime(parsed.hours, nextMinute))
-  }
+    onValueChange(formatTime(parsed.hours, nextMinute));
+  };
 
   const shiftTimeBy = (deltaMinutes: number) => {
-    const totalMinutes = parsed.hours * 60 + snappedMinutes + deltaMinutes
-    const normalized = normalizeMinutes(totalMinutes)
-    const nextHour = Math.floor(normalized / 60)
-    const rawMinute = normalized % 60
-    const nextMinute = findClosestMinute(rawMinute, minuteOptions)
-    onValueChange(formatTime(nextHour, nextMinute))
-  }
+    const totalMinutes = parsed.hours * 60 + snappedMinutes + deltaMinutes;
+    const normalized = normalizeMinutes(totalMinutes);
+    const nextHour = Math.floor(normalized / 60);
+    const rawMinute = normalized % 60;
+    const nextMinute = findClosestMinute(rawMinute, minuteOptions);
+    onValueChange(formatTime(nextHour, nextMinute));
+  };
 
   return (
     <PopoverPrimitive.Root>
@@ -105,7 +115,7 @@ export function TimePicker({
         data-slot="time-picker-trigger"
         className={cn(
           "flex w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
-          className
+          className,
         )}
         disabled={disabled}
       >
@@ -152,11 +162,13 @@ export function TimePicker({
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="rounded-md border bg-background/50">
-                  <p className="border-b px-2 py-1 text-xs text-muted-foreground">Hour</p>
+                  <p className="border-b px-2 py-1 text-xs text-muted-foreground">
+                    Hour
+                  </p>
                   <ScrollArea className="h-32">
                     <div className="space-y-1 p-1">
                       {HOURS.map((hour) => {
-                        const selected = hour === parsed.hours
+                        const selected = hour === parsed.hours;
                         return (
                           <button
                             key={`hour-${hour}`}
@@ -166,23 +178,25 @@ export function TimePicker({
                               "w-full cursor-pointer rounded-md px-2 py-1 text-center text-sm tabular-nums transition-colors",
                               selected
                                 ? "bg-accent font-medium text-accent-foreground"
-                                : "hover:bg-accent/70 hover:text-accent-foreground"
+                                : "hover:bg-accent/70 hover:text-accent-foreground",
                             )}
                           >
                             {hour.toString().padStart(2, "0")}
                           </button>
-                        )
+                        );
                       })}
                     </div>
                   </ScrollArea>
                 </div>
 
                 <div className="rounded-md border bg-background/50">
-                  <p className="border-b px-2 py-1 text-xs text-muted-foreground">Minute</p>
+                  <p className="border-b px-2 py-1 text-xs text-muted-foreground">
+                    Minute
+                  </p>
                   <ScrollArea className="h-32">
                     <div className="space-y-1 p-1">
                       {minuteOptions.map((minute) => {
-                        const selected = minute === snappedMinutes
+                        const selected = minute === snappedMinutes;
                         return (
                           <button
                             key={`minute-${minute}`}
@@ -192,12 +206,12 @@ export function TimePicker({
                               "w-full cursor-pointer rounded-md px-2 py-1 text-center text-sm tabular-nums transition-colors",
                               selected
                                 ? "bg-accent font-medium text-accent-foreground"
-                                : "hover:bg-accent/70 hover:text-accent-foreground"
+                                : "hover:bg-accent/70 hover:text-accent-foreground",
                             )}
                           >
                             {minute.toString().padStart(2, "0")}
                           </button>
-                        )
+                        );
                       })}
                     </div>
                   </ScrollArea>
@@ -206,7 +220,9 @@ export function TimePicker({
 
               {validQuickTimes.length > 0 && (
                 <div className="space-y-1.5">
-                  <p className="px-0.5 text-xs text-muted-foreground">Quick picks</p>
+                  <p className="px-0.5 text-xs text-muted-foreground">
+                    Quick picks
+                  </p>
                   <div className="flex flex-wrap gap-1.5">
                     {validQuickTimes.map((time) => (
                       <Button
@@ -225,7 +241,14 @@ export function TimePicker({
               )}
 
               <PopoverPrimitive.Close
-                render={<Button type="button" variant="outline" size="sm" className="w-full" />}
+                render={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                  />
+                }
               >
                 Done
               </PopoverPrimitive.Close>
@@ -234,6 +257,5 @@ export function TimePicker({
         </PopoverPrimitive.Positioner>
       </PopoverPrimitive.Portal>
     </PopoverPrimitive.Root>
-  )
+  );
 }
-

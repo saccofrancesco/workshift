@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react";
 
-import { save } from "@tauri-apps/plugin-dialog"
-import { writeFile } from "@tauri-apps/plugin-fs"
-import { Moon, Redo2, Sun, Undo2 } from "lucide-react"
+import { save } from "@tauri-apps/plugin-dialog";
+import { writeFile } from "@tauri-apps/plugin-fs";
+import { Moon, Redo2, Sun, Undo2 } from "lucide-react";
 
-import { useTheme } from "@/components/theme-provider"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useTheme } from "@/components/theme-provider";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -17,16 +17,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Progress } from "@/components/ui/progress"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable"
-import { ScrollArea } from "@/components/ui/scroll-area"
+} from "@/components/ui/resizable";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -35,9 +35,9 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { TimePicker } from "@/components/ui/time-picker"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/select";
+import { TimePicker } from "@/components/ui/time-picker";
+import { cn } from "@/lib/utils";
 import {
   createDefaultSessionState,
   formatFullDateLabel,
@@ -52,57 +52,57 @@ import {
   weekdayAbbrev,
   WorkshiftError,
   useWorkshift,
-} from "@/lib/workshift"
+} from "@/lib/workshift";
 import {
   createScheduleWorkbook,
   defaultExportFilename,
-} from "@/lib/workshift/export-xlsx"
+} from "@/lib/workshift/export-xlsx";
 
 interface EmployeeDraft {
-  firstName: string
-  lastName: string
-  monthlyTargetHours: string
-  lunchBreakHours: string
-  colorHex: string
+  firstName: string;
+  lastName: string;
+  monthlyTargetHours: string;
+  lunchBreakHours: string;
+  colorHex: string;
 }
 
 interface ShiftDraft {
-  employeeId: string
-  shiftDate: string
-  startTime: string
-  endTime: string
-  includesLunchBreak: boolean
+  employeeId: string;
+  shiftDate: string;
+  startTime: string;
+  endTime: string;
+  includesLunchBreak: boolean;
 }
 
 interface ShiftClipboardState {
-  employeeId: string
-  employeeName: string
-  startTime: string
-  endTime: string
-  includesLunchBreak: boolean
+  employeeId: string;
+  employeeName: string;
+  startTime: string;
+  endTime: string;
+  includesLunchBreak: boolean;
 }
 
 type EmployeeDialogState =
   | { open: false }
   | { open: true; mode: "add" }
-  | { open: true; mode: "edit"; employeeId: string }
+  | { open: true; mode: "edit"; employeeId: string };
 
 type ShiftDialogState =
   | { open: false }
   | { open: true; mode: "add" }
-  | { open: true; mode: "edit"; shiftId: string }
+  | { open: true; mode: "edit"; shiftId: string };
 
 interface ConfirmState {
-  title: string
-  message: string
-  action: () => void
-  confirmLabel: string
-  variant: "danger" | "primary"
+  title: string;
+  message: string;
+  action: () => void;
+  confirmLabel: string;
+  variant: "danger" | "primary";
 }
 
 interface NoticeState {
-  title: string
-  message: string
+  title: string;
+  message: string;
 }
 
 const DEFAULT_EMPLOYEE_DRAFT: EmployeeDraft = {
@@ -111,7 +111,7 @@ const DEFAULT_EMPLOYEE_DRAFT: EmployeeDraft = {
   monthlyTargetHours: "160",
   lunchBreakHours: "1",
   colorHex: "#2563eb",
-}
+};
 
 const COLOR_SWATCHES = [
   "#2563eb",
@@ -124,7 +124,7 @@ const COLOR_SWATCHES = [
   "#ec4899",
   "#8b5cf6",
   "#64748b",
-] as const
+] as const;
 
 const LUNCH_BREAK_OPTIONS = [
   "0",
@@ -135,7 +135,7 @@ const LUNCH_BREAK_OPTIONS = [
   "1.25",
   "1.5",
   "2",
-] as const
+] as const;
 
 function employeeToDraft(employee: Employee): EmployeeDraft {
   return {
@@ -144,7 +144,7 @@ function employeeToDraft(employee: Employee): EmployeeDraft {
     monthlyTargetHours: employee.monthlyTargetHours.toString(),
     lunchBreakHours: employee.lunchBreakHours.toString(),
     colorHex: employee.colorHex,
-  }
+  };
 }
 
 function shiftToDraft(shift: Shift): ShiftDraft {
@@ -154,34 +154,37 @@ function shiftToDraft(shift: Shift): ShiftDraft {
     startTime: shift.startTime,
     endTime: shift.endTime,
     includesLunchBreak: shift.includesLunchBreak,
-  }
+  };
 }
 
 function parseNumericField(value: string): number {
-  const parsed = Number.parseFloat(value)
-  return Number.isFinite(parsed) ? parsed : 0
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function ensureXlsxExtension(path: string): string {
-  const trimmed = path.trim()
+  const trimmed = path.trim();
   if (!trimmed.toLowerCase().endsWith(".xlsx")) {
-    return `${trimmed}.xlsx`
+    return `${trimmed}.xlsx`;
   }
-  return trimmed
+  return trimmed;
 }
 
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
-    return false
+    return false;
   }
   if (target.isContentEditable) {
-    return true
+    return true;
   }
-  if (target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) {
-    return true
+  if (
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement
+  ) {
+    return true;
   }
   if (!(target instanceof HTMLInputElement)) {
-    return false
+    return false;
   }
 
   const nonTextTypes = new Set([
@@ -195,133 +198,142 @@ function isEditableTarget(target: EventTarget | null): boolean {
     "range",
     "reset",
     "submit",
-  ])
-  return !nonTextTypes.has(target.type)
+  ]);
+  return !nonTextTypes.has(target.type);
 }
 
 export function WorkshiftApp() {
-  const controller = useWorkshift(createDefaultSessionState())
-  const { resolvedTheme, setTheme } = useTheme()
+  const controller = useWorkshift(createDefaultSessionState());
+  const { resolvedTheme, setTheme } = useTheme();
 
-  const [employeeDialog, setEmployeeDialog] =
-    useState<EmployeeDialogState>({ open: false })
+  const [employeeDialog, setEmployeeDialog] = useState<EmployeeDialogState>({
+    open: false,
+  });
   const [employeeDraft, setEmployeeDraft] = useState<EmployeeDraft>(
-    DEFAULT_EMPLOYEE_DRAFT
-  )
+    DEFAULT_EMPLOYEE_DRAFT,
+  );
 
-  const [shiftDialog, setShiftDialog] = useState<ShiftDialogState>({ open: false })
+  const [shiftDialog, setShiftDialog] = useState<ShiftDialogState>({
+    open: false,
+  });
   const [shiftDraft, setShiftDraft] = useState<ShiftDraft>({
     employeeId: "",
     shiftDate: toDateInputValue(controller.state.viewState.selectedDay),
     startTime: "09:00",
     endTime: "18:00",
     includesLunchBreak: true,
-  })
-  const [shiftClipboard, setShiftClipboard] = useState<ShiftClipboardState | null>(null)
+  });
+  const [shiftClipboard, setShiftClipboard] =
+    useState<ShiftClipboardState | null>(null);
 
-  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
-  const [errorState, setErrorState] = useState<NoticeState | null>(null)
-  const [infoState, setInfoState] = useState<NoticeState | null>(null)
+  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+  const [errorState, setErrorState] = useState<NoticeState | null>(null);
+  const [infoState, setInfoState] = useState<NoticeState | null>(null);
 
-  const employeeOptions = controller.state.schedule.employees
+  const employeeOptions = controller.state.schedule.employees;
   const employeeNameById = useMemo(() => {
-    const map = new Map<string, string>()
+    const map = new Map<string, string>();
     for (const employee of employeeOptions) {
-      const fullName = `${employee.firstName} ${employee.lastName}`.trim()
-      map.set(employee.id, fullName || "Unnamed employee")
+      const fullName = `${employee.firstName} ${employee.lastName}`.trim();
+      map.set(employee.id, fullName || "Unnamed employee");
     }
-    return map
-  }, [employeeOptions])
+    return map;
+  }, [employeeOptions]);
   const selectedDayLabel = useMemo(
     () => formatFullDateLabel(controller.state.viewState.selectedDay),
-    [controller.state.viewState.selectedDay]
-  )
+    [controller.state.viewState.selectedDay],
+  );
   const lunchBreakSelectOptions = useMemo(() => {
-    const currentValue = employeeDraft.lunchBreakHours.trim()
+    const currentValue = employeeDraft.lunchBreakHours.trim();
     if (!currentValue) {
-      return [...LUNCH_BREAK_OPTIONS]
+      return [...LUNCH_BREAK_OPTIONS];
     }
-    if (LUNCH_BREAK_OPTIONS.includes(currentValue as (typeof LUNCH_BREAK_OPTIONS)[number])) {
-      return [...LUNCH_BREAK_OPTIONS]
+    if (
+      LUNCH_BREAK_OPTIONS.includes(
+        currentValue as (typeof LUNCH_BREAK_OPTIONS)[number],
+      )
+    ) {
+      return [...LUNCH_BREAK_OPTIONS];
     }
-    return [currentValue, ...LUNCH_BREAK_OPTIONS]
-  }, [employeeDraft.lunchBreakHours])
+    return [currentValue, ...LUNCH_BREAK_OPTIONS];
+  }, [employeeDraft.lunchBreakHours]);
   const canPasteCopiedShift =
-    shiftClipboard !== null && employeeNameById.has(shiftClipboard.employeeId)
+    shiftClipboard !== null && employeeNameById.has(shiftClipboard.employeeId);
   const copiedShiftMissingEmployee =
-    shiftClipboard !== null && !employeeNameById.has(shiftClipboard.employeeId)
+    shiftClipboard !== null && !employeeNameById.has(shiftClipboard.employeeId);
   const copiedShiftEmployeeName =
     shiftClipboard !== null
-      ? (employeeNameById.get(shiftClipboard.employeeId) ?? shiftClipboard.employeeName)
-      : ""
-  const canUndo = controller.canUndo
-  const canRedo = controller.canRedo
+      ? (employeeNameById.get(shiftClipboard.employeeId) ??
+        shiftClipboard.employeeName)
+      : "";
+  const canUndo = controller.canUndo;
+  const canRedo = controller.canRedo;
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isEditableTarget(event.target)) {
-        return
+        return;
       }
 
-      const hasCommandKey = event.metaKey || event.ctrlKey
+      const hasCommandKey = event.metaKey || event.ctrlKey;
       if (!hasCommandKey || event.altKey) {
-        return
+        return;
       }
 
-      const key = event.key.toLowerCase()
-      const isUndo = key === "z" && !event.shiftKey
+      const key = event.key.toLowerCase();
+      const isUndo = key === "z" && !event.shiftKey;
       const isRedo =
         (key === "z" && event.shiftKey) ||
-        (key === "y" && event.ctrlKey && !event.metaKey)
+        (key === "y" && event.ctrlKey && !event.metaKey);
 
       if (isUndo) {
         if (!canUndo) {
-          return
+          return;
         }
-        event.preventDefault()
-        controller.undo()
-        return
+        event.preventDefault();
+        controller.undo();
+        return;
       }
 
       if (isRedo) {
         if (!canRedo) {
-          return
+          return;
         }
-        event.preventDefault()
-        controller.redo()
+        event.preventDefault();
+        controller.redo();
       }
-    }
+    };
 
-    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [canRedo, canUndo, controller])
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [canRedo, canUndo, controller]);
 
   const executeSafely = (title: string, action: () => void) => {
     try {
-      action()
+      action();
     } catch (error) {
       const message =
         error instanceof WorkshiftError || error instanceof Error
           ? error.message
-          : String(error)
-      setErrorState({ title, message })
+          : String(error);
+      setErrorState({ title, message });
     }
-  }
+  };
 
   const openAddEmployeeDialog = () => {
-    setEmployeeDraft(DEFAULT_EMPLOYEE_DRAFT)
-    setEmployeeDialog({ open: true, mode: "add" })
-  }
+    setEmployeeDraft(DEFAULT_EMPLOYEE_DRAFT);
+    setEmployeeDialog({ open: true, mode: "add" });
+  };
 
   const openEditEmployeeDialog = (employeeId: string) => {
     executeSafely("Cannot edit person", () => {
-      const employee = controller.getEmployee(employeeId)
-      setEmployeeDraft(employeeToDraft(employee))
-      setEmployeeDialog({ open: true, mode: "edit", employeeId })
-    })
-  }
+      const employee = controller.getEmployee(employeeId);
+      setEmployeeDraft(employeeToDraft(employee));
+      setEmployeeDialog({ open: true, mode: "edit", employeeId });
+    });
+  };
 
   const submitEmployeeDialog = () => {
     const values: EmployeeFormValues = {
@@ -330,29 +342,29 @@ export function WorkshiftApp() {
       monthlyTargetHours: parseNumericField(employeeDraft.monthlyTargetHours),
       lunchBreakHours: parseNumericField(employeeDraft.lunchBreakHours),
       colorHex: employeeDraft.colorHex,
-    }
+    };
 
     if (employeeDialog.open && employeeDialog.mode === "edit") {
       executeSafely("Cannot edit person", () => {
-        controller.editEmployee(employeeDialog.employeeId, values)
-        setEmployeeDialog({ open: false })
-      })
-      return
+        controller.editEmployee(employeeDialog.employeeId, values);
+        setEmployeeDialog({ open: false });
+      });
+      return;
     }
 
     executeSafely("Cannot add person", () => {
-      controller.addEmployee(values)
-      setEmployeeDialog({ open: false })
-    })
-  }
+      controller.addEmployee(values);
+      setEmployeeDialog({ open: false });
+    });
+  };
 
   const requestDeleteEmployee = (employeeId: string) => {
     executeSafely("Cannot delete person", () => {
-      const employee = controller.getEmployee(employeeId)
-      const removedShifts = controller.countEmployeeShifts(employeeId)
-      let message = `Delete ${employee.firstName} ${employee.lastName}?`
+      const employee = controller.getEmployee(employeeId);
+      const removedShifts = controller.countEmployeeShifts(employeeId);
+      let message = `Delete ${employee.firstName} ${employee.lastName}?`;
       if (removedShifts > 0) {
-        message += `\nThis will also remove ${removedShifts} shift(s).`
+        message += `\nThis will also remove ${removedShifts} shift(s).`;
       }
 
       setConfirmState({
@@ -362,20 +374,20 @@ export function WorkshiftApp() {
         variant: "danger",
         action: () => {
           executeSafely("Cannot delete person", () => {
-            controller.deleteEmployee(employeeId)
-          })
+            controller.deleteEmployee(employeeId);
+          });
         },
-      })
-    })
-  }
+      });
+    });
+  };
 
   const openAddShiftDialog = () => {
     if (employeeOptions.length === 0) {
       setInfoState({
         title: "No employees",
         message: "Add a person before creating shifts.",
-      })
-      return
+      });
+      return;
     }
 
     setShiftDraft({
@@ -384,36 +396,36 @@ export function WorkshiftApp() {
       startTime: "09:00",
       endTime: "18:00",
       includesLunchBreak: true,
-    })
-    setShiftDialog({ open: true, mode: "add" })
-  }
+    });
+    setShiftDialog({ open: true, mode: "add" });
+  };
 
   const openEditShiftDialog = (shiftId: string) => {
     executeSafely("Cannot edit shift", () => {
-      const shift = controller.getShift(shiftId)
-      setShiftDraft(shiftToDraft(shift))
-      setShiftDialog({ open: true, mode: "edit", shiftId })
-    })
-  }
+      const shift = controller.getShift(shiftId);
+      setShiftDraft(shiftToDraft(shift));
+      setShiftDialog({ open: true, mode: "edit", shiftId });
+    });
+  };
 
   const copyShiftToClipboard = (shiftId: string) => {
     executeSafely("Cannot copy shift", () => {
-      const shift = controller.getShift(shiftId)
+      const shift = controller.getShift(shiftId);
       const employeeName =
-        employeeNameById.get(shift.employeeId) ?? "Unknown employee"
+        employeeNameById.get(shift.employeeId) ?? "Unknown employee";
       setShiftClipboard({
         employeeId: shift.employeeId,
         employeeName,
         startTime: shift.startTime,
         endTime: shift.endTime,
         includesLunchBreak: shift.includesLunchBreak,
-      })
-    })
-  }
+      });
+    });
+  };
 
   const pasteCopiedShift = () => {
     if (!shiftClipboard) {
-      return
+      return;
     }
 
     executeSafely("Cannot paste shift", () => {
@@ -423,17 +435,17 @@ export function WorkshiftApp() {
         startTime: shiftClipboard.startTime,
         endTime: shiftClipboard.endTime,
         includesLunchBreak: shiftClipboard.includesLunchBreak,
-      })
-    })
-  }
+      });
+    });
+  };
 
   const submitShiftDialog = () => {
     if (!shiftDraft.employeeId.trim()) {
       setErrorState({
         title: "Cannot add shift",
         message: "Select an employee.",
-      })
-      return
+      });
+      return;
     }
 
     const values: ShiftFormValues = {
@@ -442,30 +454,30 @@ export function WorkshiftApp() {
       startTime: shiftDraft.startTime,
       endTime: shiftDraft.endTime,
       includesLunchBreak: shiftDraft.includesLunchBreak,
-    }
+    };
 
     if (shiftDialog.open && shiftDialog.mode === "edit") {
       executeSafely("Cannot edit shift", () => {
-        controller.editShift(shiftDialog.shiftId, values)
-        setShiftDialog({ open: false })
-      })
-      return
+        controller.editShift(shiftDialog.shiftId, values);
+        setShiftDialog({ open: false });
+      });
+      return;
     }
 
     executeSafely("Cannot add shift", () => {
-      controller.addShift(values)
-      setShiftDialog({ open: false })
-    })
-  }
+      controller.addShift(values);
+      setShiftDialog({ open: false });
+    });
+  };
 
   const requestDeleteShift = (shiftId: string) => {
     executeSafely("Cannot delete shift", () => {
-      const shift = controller.getShift(shiftId)
-      const employee = controller.getEmployee(shift.employeeId)
+      const shift = controller.getShift(shiftId);
+      const employee = controller.getEmployee(shift.employeeId);
       const message =
         `Delete the shift for ${employee.firstName} ${employee.lastName} on ` +
         `${formatFullDateLabel(shift.shiftDate)}\n` +
-        `${formatTimeRange(shift.startTime, shift.endTime)}?`
+        `${formatTimeRange(shift.startTime, shift.endTime)}?`;
 
       setConfirmState({
         title: "Delete shift",
@@ -474,16 +486,18 @@ export function WorkshiftApp() {
         variant: "danger",
         action: () => {
           executeSafely("Cannot delete shift", () => {
-            controller.deleteShift(shiftId)
-          })
+            controller.deleteShift(shiftId);
+          });
         },
-      })
-    })
-  }
+      });
+    });
+  };
 
   const handleExport = async () => {
     try {
-      const defaultPath = defaultExportFilename(controller.state.viewState.selectedMonth)
+      const defaultPath = defaultExportFilename(
+        controller.state.viewState.selectedMonth,
+      );
       const path = await save({
         title: "Export .xlsx",
         defaultPath,
@@ -493,28 +507,28 @@ export function WorkshiftApp() {
             extensions: ["xlsx"],
           },
         ],
-      })
+      });
 
       if (!path) {
-        return
+        return;
       }
 
-      const finalPath = ensureXlsxExtension(path)
+      const finalPath = ensureXlsxExtension(path);
       const workbookData = createScheduleWorkbook(
         controller.state.schedule,
-        controller.state.viewState.selectedMonth
-      )
-      await writeFile(finalPath, workbookData)
+        controller.state.viewState.selectedMonth,
+      );
+      await writeFile(finalPath, workbookData);
 
       setInfoState({
         title: "Export complete",
         message: `Saved schedule to:\n${finalPath}`,
-      })
+      });
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      setErrorState({ title: "Export failed", message })
+      const message = error instanceof Error ? error.message : String(error);
+      setErrorState({ title: "Export failed", message });
     }
-  }
+  };
 
   return (
     <main className="min-h-screen overflow-auto bg-muted/25 p-4">
@@ -527,7 +541,11 @@ export function WorkshiftApp() {
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-2">
                       <CardTitle>Employee</CardTitle>
-                      <Button size="sm" className="ml-auto" onClick={openAddEmployeeDialog}>
+                      <Button
+                        size="sm"
+                        className="ml-auto"
+                        onClick={openAddEmployeeDialog}
+                      >
                         Add person
                       </Button>
                     </div>
@@ -537,12 +555,16 @@ export function WorkshiftApp() {
                       <div className="space-y-1.5">
                         {controller.employeeRows.length === 0 && (
                           <p className="w-full rounded-md border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
-                            No employees yet. Add a person to start planning shifts.
+                            No employees yet. Add a person to start planning
+                            shifts.
                           </p>
                         )}
 
                         {controller.employeeRows.map((employee) => (
-                          <div key={employee.id} className="w-full rounded-lg border bg-card px-2.5 py-2">
+                          <div
+                            key={employee.id}
+                            className="w-full rounded-lg border bg-card px-2.5 py-2"
+                          >
                             <div className="flex items-center gap-2">
                               <span
                                 className="inline-flex size-2.5 shrink-0 rounded-full"
@@ -553,22 +575,28 @@ export function WorkshiftApp() {
                                   {employee.fullName}
                                 </p>
                                 <p className="truncate text-xs text-muted-foreground">
-                                  {formatHours(employee.monthlyTargetHours)} / month ·{" "}
-                                  {formatHours(employee.lunchBreakHours)} lunch break
+                                  {formatHours(employee.monthlyTargetHours)} /
+                                  month ·{" "}
+                                  {formatHours(employee.lunchBreakHours)} lunch
+                                  break
                                 </p>
                               </div>
                               <div className="ml-auto flex shrink-0 items-center gap-1">
                                 <Button
                                   size="xs"
                                   variant="outline"
-                                  onClick={() => openEditEmployeeDialog(employee.id)}
+                                  onClick={() =>
+                                    openEditEmployeeDialog(employee.id)
+                                  }
                                 >
                                   Edit
                                 </Button>
                                 <Button
                                   size="xs"
                                   variant="destructive"
-                                  onClick={() => requestDeleteEmployee(employee.id)}
+                                  onClick={() =>
+                                    requestDeleteEmployee(employee.id)
+                                  }
                                 >
                                   Delete
                                 </Button>
@@ -591,16 +619,28 @@ export function WorkshiftApp() {
                   </CardHeader>
                   <CardContent className="flex min-h-0 flex-1 flex-col gap-3">
                     <div className="flex items-center gap-1.5">
-                      <Button size="sm" variant="outline" onClick={() => controller.moveMonth(-1)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => controller.moveMonth(-1)}
+                      >
                         Prev
                       </Button>
                       <div className="flex-1 text-center text-sm font-medium">
                         {controller.monthLabel}
                       </div>
-                      <Button size="sm" variant="outline" onClick={() => controller.goToday()}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => controller.goToday()}
+                      >
                         Today
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => controller.moveMonth(1)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => controller.moveMonth(1)}
+                      >
                         Next
                       </Button>
                       <Button
@@ -661,7 +701,7 @@ export function WorkshiftApp() {
                               : "bg-muted/45 text-muted-foreground",
                             day.isToday && "border-primary/60",
                             day.isSelected &&
-                              "border-primary bg-primary/15 text-foreground hover:bg-primary/20"
+                              "border-primary bg-primary/15 text-foreground hover:bg-primary/20",
                           )}
                         >
                           <div className="flex items-center gap-1">
@@ -671,18 +711,20 @@ export function WorkshiftApp() {
                             <span
                               className={cn(
                                 "ml-auto inline-flex size-1.5 rounded-full",
-                                day.isToday ? "bg-primary" : "bg-transparent"
+                                day.isToday ? "bg-primary" : "bg-transparent",
                               )}
                             />
                           </div>
                           <div className="flex items-center gap-1">
-                            {day.employeeColors.slice(0, 3).map((color, index) => (
-                              <span
-                                key={`${day.dayNumber}-${index}`}
-                                className="inline-flex size-1.5 rounded-full sm:size-2"
-                                style={{ backgroundColor: color }}
-                              />
-                            ))}
+                            {day.employeeColors
+                              .slice(0, 3)
+                              .map((color, index) => (
+                                <span
+                                  key={`${day.dayNumber}-${index}`}
+                                  className="inline-flex size-1.5 rounded-full sm:size-2"
+                                  style={{ backgroundColor: color }}
+                                />
+                              ))}
                             {day.overflowCount > 0 && (
                               <span className="rounded bg-muted px-1 text-[10px] font-medium text-muted-foreground sm:text-xs">
                                 +{day.overflowCount}
@@ -725,13 +767,19 @@ export function WorkshiftApp() {
                       <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-2 py-1.5 text-xs">
                         <p className="min-w-0 flex-1 truncate text-muted-foreground">
                           Copied: {copiedShiftEmployeeName} ·{" "}
-                          {formatTimeRange(shiftClipboard.startTime, shiftClipboard.endTime)} ·{" "}
+                          {formatTimeRange(
+                            shiftClipboard.startTime,
+                            shiftClipboard.endTime,
+                          )}{" "}
+                          ·{" "}
                           {shiftClipboard.includesLunchBreak
                             ? "lunch included"
                             : "lunch not included"}
                         </p>
                         {copiedShiftMissingEmployee && (
-                          <span className="text-destructive">Employee removed</span>
+                          <span className="text-destructive">
+                            Employee removed
+                          </span>
                         )}
                         <Button
                           size="xs"
@@ -753,7 +801,10 @@ export function WorkshiftApp() {
                         )}
 
                         {controller.dailyShiftRows.map((shift) => (
-                          <div key={shift.id} className="w-full rounded-lg border bg-card px-2.5 py-2">
+                          <div
+                            key={shift.id}
+                            className="w-full rounded-lg border bg-card px-2.5 py-2"
+                          >
                             <div className="flex items-center gap-2">
                               <span
                                 className="inline-flex size-2.5 shrink-0 rounded-full"
@@ -764,8 +815,11 @@ export function WorkshiftApp() {
                                   {shift.employeeName}
                                 </p>
                                 <p className="truncate text-xs text-muted-foreground">
-                                  {formatTimeRange(shift.startTime, shift.endTime)} ·{" "}
-                                  {formatHours(shift.durationHours)}
+                                  {formatTimeRange(
+                                    shift.startTime,
+                                    shift.endTime,
+                                  )}{" "}
+                                  · {formatHours(shift.durationHours)}
                                 </p>
                               </div>
                               <div className="ml-auto flex shrink-0 items-center gap-1">
@@ -809,7 +863,11 @@ export function WorkshiftApp() {
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
                   <CardTitle>Recap</CardTitle>
-                  <Button size="sm" className="ml-auto" onClick={() => void handleExport()}>
+                  <Button
+                    size="sm"
+                    className="ml-auto"
+                    onClick={() => void handleExport()}
+                  >
                     Export .xlsx
                   </Button>
                 </div>
@@ -823,20 +881,28 @@ export function WorkshiftApp() {
                   ) : (
                     <div className="grid grid-cols-1 gap-2 pr-2 md:grid-cols-2 xl:grid-cols-3">
                       {controller.workloadRows.map((workload) => (
-                        <div key={workload.id} className="rounded-lg border bg-card p-3">
+                        <div
+                          key={workload.id}
+                          className="rounded-lg border bg-card p-3"
+                        >
                           <div className="mb-1 flex items-center gap-2">
                             <span
                               className="inline-flex size-2 rounded-full"
                               style={{ backgroundColor: workload.colorHex }}
                             />
-                            <p className="truncate font-medium">{workload.fullName}</p>
+                            <p className="truncate font-medium">
+                              {workload.fullName}
+                            </p>
                           </div>
                           <p className="mb-2 text-sm leading-snug text-muted-foreground">
                             {formatHours(workload.assignedHours)} assigned ·{" "}
                             {formatHours(workload.targetHours)} target ·{" "}
                             {formatHours(workload.remainingHours)} remaining
                           </p>
-                          <Progress value={Math.round(workload.progressRatio * 100)} className="gap-0" />
+                          <Progress
+                            value={Math.round(workload.progressRatio * 100)}
+                            className="gap-0"
+                          />
                         </div>
                       ))}
                     </div>
@@ -852,7 +918,7 @@ export function WorkshiftApp() {
         open={employeeDialog.open}
         onOpenChange={(open) => {
           if (!open) {
-            setEmployeeDialog({ open: false })
+            setEmployeeDialog({ open: false });
           }
         }}
       >
@@ -879,7 +945,7 @@ export function WorkshiftApp() {
                     setEmployeeDraft((current) => ({
                       ...current,
                       firstName: event.target.value,
-                    }))
+                    }));
                   }}
                 />
               </div>
@@ -893,7 +959,7 @@ export function WorkshiftApp() {
                     setEmployeeDraft((current) => ({
                       ...current,
                       lastName: event.target.value,
-                    }))
+                    }));
                   }}
                 />
               </div>
@@ -912,20 +978,22 @@ export function WorkshiftApp() {
                     setEmployeeDraft((current) => ({
                       ...current,
                       monthlyTargetHours: event.target.value,
-                    }))
+                    }));
                   }}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="employee-lunch-break">Lunch break (hours)</Label>
+                <Label htmlFor="employee-lunch-break">
+                  Lunch break (hours)
+                </Label>
                 <Select
                   value={employeeDraft.lunchBreakHours}
                   onValueChange={(value) => {
                     setEmployeeDraft((current) => ({
                       ...current,
                       lunchBreakHours: value ?? "0",
-                    }))
+                    }));
                   }}
                 >
                   <SelectTrigger id="employee-lunch-break" className="w-full">
@@ -954,14 +1022,14 @@ export function WorkshiftApp() {
                       "h-8 cursor-pointer rounded-md border transition-colors",
                       employeeDraft.colorHex.toLowerCase() === color
                         ? "ring-2 ring-ring"
-                        : "hover:border-foreground/40"
+                        : "hover:border-foreground/40",
                     )}
                     style={{ backgroundColor: color }}
                     onClick={() => {
                       setEmployeeDraft((current) => ({
                         ...current,
                         colorHex: color,
-                      }))
+                      }));
                     }}
                   />
                 ))}
@@ -975,7 +1043,7 @@ export function WorkshiftApp() {
                     setEmployeeDraft((current) => ({
                       ...current,
                       colorHex: event.target.value,
-                    }))
+                    }));
                   }}
                 />
                 <Input
@@ -985,7 +1053,7 @@ export function WorkshiftApp() {
                     setEmployeeDraft((current) => ({
                       ...current,
                       colorHex: event.target.value,
-                    }))
+                    }));
                   }}
                 />
               </div>
@@ -997,7 +1065,10 @@ export function WorkshiftApp() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEmployeeDialog({ open: false })}>
+            <Button
+              variant="outline"
+              onClick={() => setEmployeeDialog({ open: false })}
+            >
               Cancel
             </Button>
             <Button onClick={submitEmployeeDialog}>Save</Button>
@@ -1009,7 +1080,7 @@ export function WorkshiftApp() {
         open={shiftDialog.open}
         onOpenChange={(open) => {
           if (!open) {
-            setShiftDialog({ open: false })
+            setShiftDialog({ open: false });
           }
         }}
       >
@@ -1020,7 +1091,9 @@ export function WorkshiftApp() {
                 ? "Edit shift"
                 : "Add shift"}
             </DialogTitle>
-            <DialogDescription>Selected day: {selectedDayLabel}</DialogDescription>
+            <DialogDescription>
+              Selected day: {selectedDayLabel}
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -1032,16 +1105,19 @@ export function WorkshiftApp() {
                   setShiftDraft((current) => ({
                     ...current,
                     employeeId: value ?? "",
-                  }))
+                  }));
                 }}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select an employee">
                     {(value) => {
                       if (!value) {
-                        return "Select an employee"
+                        return "Select an employee";
                       }
-                      return employeeNameById.get(String(value)) ?? "Unknown employee"
+                      return (
+                        employeeNameById.get(String(value)) ??
+                        "Unknown employee"
+                      );
                     }}
                   </SelectValue>
                 </SelectTrigger>
@@ -1071,9 +1147,16 @@ export function WorkshiftApp() {
                     setShiftDraft((current) => ({
                       ...current,
                       startTime: nextTime,
-                    }))
+                    }));
                   }}
-                  quickTimes={["06:00", "07:00", "08:00", "09:00", "10:00", "12:00"]}
+                  quickTimes={[
+                    "06:00",
+                    "07:00",
+                    "08:00",
+                    "09:00",
+                    "10:00",
+                    "12:00",
+                  ]}
                 />
               </div>
 
@@ -1085,9 +1168,16 @@ export function WorkshiftApp() {
                     setShiftDraft((current) => ({
                       ...current,
                       endTime: nextTime,
-                    }))
+                    }));
                   }}
-                  quickTimes={["12:00", "14:00", "16:00", "18:00", "20:00", "22:00"]}
+                  quickTimes={[
+                    "12:00",
+                    "14:00",
+                    "16:00",
+                    "18:00",
+                    "20:00",
+                    "22:00",
+                  ]}
                 />
               </div>
             </div>
@@ -1100,7 +1190,7 @@ export function WorkshiftApp() {
                     setShiftDraft((current) => ({
                       ...current,
                       includesLunchBreak: checked,
-                    }))
+                    }));
                   }}
                 />
                 <Label>Lunch break included</Label>
@@ -1112,7 +1202,10 @@ export function WorkshiftApp() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShiftDialog({ open: false })}>
+            <Button
+              variant="outline"
+              onClick={() => setShiftDialog({ open: false })}
+            >
               Cancel
             </Button>
             <Button onClick={submitShiftDialog}>Save</Button>
@@ -1124,7 +1217,7 @@ export function WorkshiftApp() {
         open={Boolean(confirmState)}
         onOpenChange={(open) => {
           if (!open) {
-            setConfirmState(null)
+            setConfirmState(null);
           }
         }}
       >
@@ -1145,11 +1238,13 @@ export function WorkshiftApp() {
               Cancel
             </Button>
             <Button
-              variant={confirmState?.variant === "danger" ? "destructive" : "default"}
+              variant={
+                confirmState?.variant === "danger" ? "destructive" : "default"
+              }
               onClick={() => {
-                const action = confirmState?.action
-                setConfirmState(null)
-                action?.()
+                const action = confirmState?.action;
+                setConfirmState(null);
+                action?.();
               }}
             >
               {confirmState?.confirmLabel}
@@ -1162,7 +1257,7 @@ export function WorkshiftApp() {
         open={Boolean(errorState)}
         onOpenChange={(open) => {
           if (!open) {
-            setErrorState(null)
+            setErrorState(null);
           }
         }}
       >
@@ -1183,7 +1278,7 @@ export function WorkshiftApp() {
         open={Boolean(infoState)}
         onOpenChange={(open) => {
           if (!open) {
-            setInfoState(null)
+            setInfoState(null);
           }
         }}
       >
@@ -1200,5 +1295,5 @@ export function WorkshiftApp() {
         </DialogContent>
       </Dialog>
     </main>
-  )
+  );
 }
