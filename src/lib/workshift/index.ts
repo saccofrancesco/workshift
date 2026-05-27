@@ -97,6 +97,8 @@ export interface ShiftFormValues {
 
 export interface WorkshiftViewModel {
   state: SessionState
+  canUndo: boolean
+  canRedo: boolean
   monthLabel: string
   employeeRows: EmployeeListItemVM[]
   calendarGrid: CalendarDayVM[][]
@@ -114,6 +116,8 @@ export interface WorkshiftViewModel {
   addShift: (values: ShiftFormValues) => void
   editShift: (shiftId: string, values: ShiftFormValues) => void
   deleteShift: (shiftId: string) => void
+  undo: () => void
+  redo: () => void
 }
 
 const WEEKDAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const
@@ -128,6 +132,7 @@ const WEEKDAY_LONG = [
 ] as const
 const DEFAULT_COLOR = "#2563eb"
 const UNKNOWN_COLOR = "#94a3b8"
+const HISTORY_LIMIT = 100
 
 const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d$/
 
@@ -160,6 +165,16 @@ function cloneSchedule(schedule: Schedule): Schedule {
   return {
     employees: schedule.employees.map((employee) => ({ ...employee })),
     shifts: schedule.shifts.map((shift) => ({ ...shift, shiftDate: new Date(shift.shiftDate) })),
+  }
+}
+
+function cloneSessionState(state: SessionState): SessionState {
+  return {
+    schedule: cloneSchedule(state.schedule),
+    viewState: {
+      selectedDay: new Date(state.viewState.selectedDay),
+      selectedMonth: new Date(state.viewState.selectedMonth),
+    },
   }
 }
 
@@ -542,7 +557,7 @@ export function buildCalendarGrid(
   return rows
 }
 
-type Action =
+type StateAction =
   | { type: "set-selected-day"; selectedDay: Date }
   | { type: "move-month"; delta: number }
   | { type: "go-today" }
@@ -553,7 +568,15 @@ type Action =
   | { type: "edit-shift"; shiftId: string; values: ShiftFormValues }
   | { type: "delete-shift"; shiftId: string }
 
-function reducer(state: SessionState, action: Action): SessionState {
+type Action = StateAction | { type: "undo" } | { type: "redo" }
+
+interface HistoryState {
+  past: SessionState[]
+  present: SessionState
+  future: SessionState[]
+}
+
+function reducer(state: SessionState, action: StateAction): SessionState {
   switch (action.type) {
     case "set-selected-day": {
       const selectedDay = startOfDay(action.selectedDay)
@@ -665,6 +688,74 @@ function reducer(state: SessionState, action: Action): SessionState {
   }
 }
 
+function isHistoryTrackedAction(action: StateAction): boolean {
+  return (
+    action.type === "add-employee" ||
+    action.type === "edit-employee" ||
+    action.type === "delete-employee" ||
+    action.type === "add-shift" ||
+    action.type === "edit-shift" ||
+    action.type === "delete-shift"
+  )
+}
+
+function trimPast(past: SessionState[]): SessionState[] {
+  if (past.length <= HISTORY_LIMIT) {
+    return past
+  }
+  return past.slice(past.length - HISTORY_LIMIT)
+}
+
+function historyReducer(state: HistoryState, action: Action): HistoryState {
+  switch (action.type) {
+    case "undo": {
+      if (state.past.length === 0) {
+        return state
+      }
+      const previous = state.past[state.past.length - 1]
+      if (!previous) {
+        return state
+      }
+      return {
+        past: state.past.slice(0, -1),
+        present: cloneSessionState(previous),
+        future: [cloneSessionState(state.present), ...state.future],
+      }
+    }
+
+    case "redo": {
+      if (state.future.length === 0) {
+        return state
+      }
+      const [next, ...future] = state.future
+      if (!next) {
+        return state
+      }
+      return {
+        past: trimPast([...state.past, cloneSessionState(state.present)]),
+        present: cloneSessionState(next),
+        future,
+      }
+    }
+
+    default: {
+      const nextPresent = reducer(state.present, action)
+      if (!isHistoryTrackedAction(action)) {
+        return {
+          ...state,
+          present: nextPresent,
+          future: [],
+        }
+      }
+      return {
+        past: trimPast([...state.past, cloneSessionState(state.present)]),
+        present: nextPresent,
+        future: [],
+      }
+    }
+  }
+}
+
 export function createDefaultSessionState(today: Date = nowDate()): SessionState {
   const selectedDay = startOfDay(today)
   return {
@@ -682,7 +773,16 @@ export function createDefaultSessionState(today: Date = nowDate()): SessionState
 export function useWorkshift(
   initialState: SessionState = createDefaultSessionState()
 ): WorkshiftViewModel {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [historyState, dispatch] = useReducer(
+    historyReducer,
+    initialState,
+    (seed): HistoryState => ({
+      past: [],
+      present: cloneSessionState(seed),
+      future: [],
+    })
+  )
+  const state = historyState.present
 
   const derived = useMemo(() => {
     const employeeRows = employeeDisplayRows(state.schedule)
@@ -701,6 +801,8 @@ export function useWorkshift(
 
   return {
     state,
+    canUndo: historyState.past.length > 0,
+    canRedo: historyState.future.length > 0,
     ...derived,
     countEmployeeShifts: (employeeId: string) =>
       state.schedule.shifts.filter((shift) => shift.employeeId === employeeId).length,
@@ -728,6 +830,12 @@ export function useWorkshift(
     },
     deleteShift: (shiftId: string) => {
       dispatch({ type: "delete-shift", shiftId })
+    },
+    undo: () => {
+      dispatch({ type: "undo" })
+    },
+    redo: () => {
+      dispatch({ type: "redo" })
     },
   }
 }
