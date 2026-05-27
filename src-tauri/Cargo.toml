@@ -1,6 +1,6 @@
 [package]
 name = "workshift"
-version = "1.1.0"
+version = "1.1.1"
 description = "Workshift desktop planner"
 authors = ["Francesco Sacco"]
 license = ""
