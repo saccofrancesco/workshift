@@ -1,10 +1,10 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { save } from "@tauri-apps/plugin-dialog"
 import { writeFile } from "@tauri-apps/plugin-fs"
-import { Moon, Sun } from "lucide-react"
+import { Moon, Redo2, Sun, Undo2 } from "lucide-react"
 
 import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
@@ -170,6 +170,35 @@ function ensureXlsxExtension(path: string): string {
   return trimmed
 }
 
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false
+  }
+  if (target.isContentEditable) {
+    return true
+  }
+  if (target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) {
+    return true
+  }
+  if (!(target instanceof HTMLInputElement)) {
+    return false
+  }
+
+  const nonTextTypes = new Set([
+    "button",
+    "checkbox",
+    "color",
+    "file",
+    "hidden",
+    "image",
+    "radio",
+    "range",
+    "reset",
+    "submit",
+  ])
+  return !nonTextTypes.has(target.type)
+}
+
 export function WorkshiftApp() {
   const controller = useWorkshift(createDefaultSessionState())
   const { resolvedTheme, setTheme } = useTheme()
@@ -225,6 +254,49 @@ export function WorkshiftApp() {
     shiftClipboard !== null
       ? (employeeNameById.get(shiftClipboard.employeeId) ?? shiftClipboard.employeeName)
       : ""
+  const canUndo = controller.canUndo
+  const canRedo = controller.canRedo
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isEditableTarget(event.target)) {
+        return
+      }
+
+      const hasCommandKey = event.metaKey || event.ctrlKey
+      if (!hasCommandKey || event.altKey) {
+        return
+      }
+
+      const key = event.key.toLowerCase()
+      const isUndo = key === "z" && !event.shiftKey
+      const isRedo =
+        (key === "z" && event.shiftKey) ||
+        (key === "y" && event.ctrlKey && !event.metaKey)
+
+      if (isUndo) {
+        if (!canUndo) {
+          return
+        }
+        event.preventDefault()
+        controller.undo()
+        return
+      }
+
+      if (isRedo) {
+        if (!canRedo) {
+          return
+        }
+        event.preventDefault()
+        controller.redo()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [canRedo, canUndo, controller])
 
   const executeSafely = (title: string, action: () => void) => {
     try {
@@ -530,6 +602,26 @@ export function WorkshiftApp() {
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => controller.moveMonth(1)}>
                         Next
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        disabled={!canUndo}
+                        onClick={() => controller.undo()}
+                        aria-label="Undo"
+                        title="Undo (Ctrl/Cmd+Z)"
+                      >
+                        <Undo2 className="size-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        disabled={!canRedo}
+                        onClick={() => controller.redo()}
+                        aria-label="Redo"
+                        title="Redo (Shift+Ctrl/Cmd+Z)"
+                      >
+                        <Redo2 className="size-4" />
                       </Button>
                       <Button
                         variant="outline"
