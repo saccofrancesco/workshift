@@ -2,8 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { isTauri } from "@tauri-apps/api/core";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
+import { relaunch } from "@tauri-apps/plugin-process";
+import { check } from "@tauri-apps/plugin-updater";
 import { Moon, Redo2, Sun, Undo2 } from "lucide-react";
 
 import { useTheme } from "@/components/theme-provider";
@@ -105,6 +108,18 @@ interface NoticeState {
   message: string;
 }
 
+interface AvailableUpdateState {
+  currentVersion: string;
+  version: string;
+  date?: string;
+  notes?: string;
+}
+
+interface UpdateProgressState {
+  downloadedBytes: number;
+  totalBytes: number | null;
+}
+
 const DEFAULT_EMPLOYEE_DRAFT: EmployeeDraft = {
   firstName: "",
   lastName: "",
@@ -170,6 +185,23 @@ function ensureXlsxExtension(path: string): string {
   return trimmed;
 }
 
+function formatByteCount(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return "0 B";
+  }
+
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let unitIndex = 0;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+
+  const precision = value >= 100 || unitIndex === 0 ? 0 : value >= 10 ? 1 : 2;
+  return `${value.toFixed(precision)} ${units[unitIndex]}`;
+}
+
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
     return false;
@@ -229,6 +261,11 @@ export function WorkshiftApp() {
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
   const [errorState, setErrorState] = useState<NoticeState | null>(null);
   const [infoState, setInfoState] = useState<NoticeState | null>(null);
+  const [availableUpdate, setAvailableUpdate] =
+    useState<AvailableUpdateState | null>(null);
+  const [isInstallingUpdate, setIsInstallingUpdate] = useState(false);
+  const [updateProgress, setUpdateProgress] =
+    useState<UpdateProgressState | null>(null);
 
   const employeeOptions = controller.state.schedule.employees;
   const employeeNameById = useMemo(() => {
@@ -266,6 +303,22 @@ export function WorkshiftApp() {
       ? (employeeNameById.get(shiftClipboard.employeeId) ??
         shiftClipboard.employeeName)
       : "";
+  const updateProgressLabel = useMemo(() => {
+    if (!updateProgress) {
+      return "Downloading update package...";
+    }
+    if (
+      typeof updateProgress.totalBytes === "number" &&
+      updateProgress.totalBytes > 0
+    ) {
+      const percentage = Math.round(
+        (updateProgress.downloadedBytes / updateProgress.totalBytes) * 100,
+      );
+      const boundedPercentage = Math.min(100, Math.max(0, percentage));
+      return `Downloading update package... ${boundedPercentage}% (${formatByteCount(updateProgress.downloadedBytes)} / ${formatByteCount(updateProgress.totalBytes)})`;
+    }
+    return `Downloading update package... ${formatByteCount(updateProgress.downloadedBytes)}`;
+  }, [updateProgress]);
   const canUndo = controller.canUndo;
   const canRedo = controller.canRedo;
 
@@ -309,6 +362,43 @@ export function WorkshiftApp() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [canRedo, canUndo, controller]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const checkForUpdates = async () => {
+      if (!isTauri()) {
+        return;
+      }
+
+      try {
+        const update = await check();
+        if (!update) {
+          return;
+        }
+
+        const metadata: AvailableUpdateState = {
+          currentVersion: update.currentVersion,
+          version: update.version,
+          date: update.date,
+          notes: update.body,
+        };
+        await update.close();
+
+        if (!isCancelled) {
+          setAvailableUpdate(metadata);
+        }
+      } catch {
+        // Ignore updater configuration/network errors and continue normally.
+      }
+    };
+
+    void checkForUpdates();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   const executeSafely = (title: string, action: () => void) => {
     try {
@@ -527,6 +617,66 @@ export function WorkshiftApp() {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setErrorState({ title: "Export failed", message });
+    }
+  };
+
+  const installAvailableUpdate = async () => {
+    if (isInstallingUpdate) {
+      return;
+    }
+
+    setIsInstallingUpdate(true);
+    setUpdateProgress({
+      downloadedBytes: 0,
+      totalBytes: null,
+    });
+
+    let pendingUpdate: Awaited<ReturnType<typeof check>> = null;
+    try {
+      pendingUpdate = await check();
+      if (!pendingUpdate) {
+        setAvailableUpdate(null);
+        setInfoState({
+          title: "Already up to date",
+          message: "No update is currently available.",
+        });
+        return;
+      }
+
+      await pendingUpdate.downloadAndInstall((event) => {
+        if (event.event === "Started") {
+          setUpdateProgress({
+            downloadedBytes: 0,
+            totalBytes: event.data.contentLength ?? null,
+          });
+          return;
+        }
+        if (event.event === "Progress") {
+          setUpdateProgress((current) => {
+            const previousBytes = current?.downloadedBytes ?? 0;
+            const totalBytes = current?.totalBytes ?? null;
+            return {
+              downloadedBytes: previousBytes + event.data.chunkLength,
+              totalBytes,
+            };
+          });
+        }
+      });
+
+      setAvailableUpdate(null);
+      await relaunch();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setErrorState({
+        title: "Update failed",
+        message,
+      });
+    } finally {
+      if (pendingUpdate) {
+        await pendingUpdate.close().catch(() => undefined);
+      }
+      setIsInstallingUpdate(false);
+      setUpdateProgress(null);
     }
   };
 
@@ -1209,6 +1359,55 @@ export function WorkshiftApp() {
               Cancel
             </Button>
             <Button onClick={submitShiftDialog}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(availableUpdate)}
+        onOpenChange={(open) => {
+          if (!open && !isInstallingUpdate) {
+            setAvailableUpdate(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update available</DialogTitle>
+            <DialogDescription className="space-y-1 whitespace-pre-wrap">
+              <span>
+                Version {availableUpdate?.version} is available (current{" "}
+                {availableUpdate?.currentVersion}).
+              </span>
+              {availableUpdate?.date && (
+                <span className="block">Published: {availableUpdate.date}</span>
+              )}
+              {availableUpdate?.notes && (
+                <span className="block">{availableUpdate.notes}</span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {isInstallingUpdate && (
+            <p className="rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+              {updateProgressLabel}
+            </p>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              disabled={isInstallingUpdate}
+              onClick={() => setAvailableUpdate(null)}
+            >
+              Later
+            </Button>
+            <Button
+              disabled={isInstallingUpdate}
+              onClick={() => void installAvailableUpdate()}
+            >
+              {isInstallingUpdate ? "Installing..." : "Update now"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
