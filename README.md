@@ -56,6 +56,7 @@ You can manage employees, assign shifts in a monthly calendar, monitor monthly w
 - Per-employee workload recap with progress bars
 - Lunch-break-aware hour calculations
 - One-click export to `.xlsx` with 3 sheets: `Shifts_Data`, `Monthly_View`, `Summary`
+- Startup auto-update check with in-app install + relaunch flow
 - Light and dark mode
 - Cross-platform installers via GitHub Releases
 
@@ -114,6 +115,34 @@ npm run tauri build
 ```bash
 npm run dev
 ```
+
+---
+
+## Auto Updates (Tauri)
+
+Workshift includes an in-app updater flow:
+- On app startup it checks for updates
+- If a new version exists, the app prompts the user
+- If accepted, it downloads, installs, and relaunches automatically
+- If declined, the app continues normally
+
+### One-time setup required
+
+1. Generate updater signing keys:
+
+```bash
+npm run tauri signer generate -- -w ~/.tauri/workshift.key
+```
+
+2. Copy the generated public key into:
+- `src-tauri/tauri.conf.json` -> `plugins.updater.pubkey`
+
+3. Add GitHub repository secrets for release builds:
+- `TAURI_SIGNING_PRIVATE_KEY` (private key content or path)
+- `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (if you used a password)
+
+The updater endpoint is already configured to:
+- `https://github.com/saccofrancesco/workshift/releases/latest/download/latest.json`
 
 ---
 
