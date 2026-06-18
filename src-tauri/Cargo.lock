@@ -5271,7 +5271,7 @@ dependencies = [
 
 [[package]]
 name = "workshift"
-version = "1.4.1"
+version = "1.4.2"
 dependencies = [
  "log",
  "serde",
