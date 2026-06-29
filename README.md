@@ -126,26 +126,6 @@ Workshift includes an in-app updater flow:
 - If accepted, it downloads, installs, and relaunches automatically
 - If declined, the app continues normally
 
-### One-time setup required
-
-1. Generate updater signing keys:
-
-```bash
-npm run tauri signer generate -- -w ~/.tauri/workshift.key
-```
-
-2. Copy the generated public key into:
-- `src-tauri/tauri.conf.json` -> `plugins.updater.pubkey`
-
-3. Add GitHub repository secrets for release builds:
-- `TAURI_SIGNING_PRIVATE_KEY` (private key content or path)
-- `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (if you used a password)
-
-The updater endpoint is already configured to:
-- `https://github.com/saccofrancesco/workshift/releases/latest/download/latest.json`
-
----
-
 ## Credits & Acknowledgements
 
 Workshift is built with:
