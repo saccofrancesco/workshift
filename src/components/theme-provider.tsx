@@ -27,24 +27,23 @@ function applyResolvedTheme(theme: ResolvedTheme) {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = React.useState<Theme>(() => {
-    if (typeof window === "undefined") {
-      return "system";
-    }
-    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return isTheme(storedTheme) ? storedTheme : "system";
-  });
-  const [systemIsDark, setSystemIsDark] = React.useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-    return window.matchMedia(THEME_QUERY).matches;
-  });
+  // Keep the initial render identical on the server and client. Browser-only
+  // theme state is loaded after hydration to avoid rendering different icons.
+  const [theme, setThemeState] = React.useState<Theme>("system");
+  const [systemIsDark, setSystemIsDark] = React.useState(false);
 
   React.useEffect(() => {
+    const updateStoredTheme = () => {
+      const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+      if (isTheme(storedTheme)) {
+        setThemeState(storedTheme);
+      }
+    };
+
     const mediaQuery = window.matchMedia(THEME_QUERY);
     const updateSystemTheme = () => setSystemIsDark(mediaQuery.matches);
 
+    updateStoredTheme();
     updateSystemTheme();
 
     if (typeof mediaQuery.addEventListener === "function") {
